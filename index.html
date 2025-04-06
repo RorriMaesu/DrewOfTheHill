@@ -35,6 +35,27 @@
     </div>
 
     <div class="page-container">
+        <!-- Screenshot overlay for sharing -->
+        <div id="screenshot-overlay" class="screenshot-overlay">
+            <div class="screenshot-container">
+                <div class="screenshot-close" onclick="closeScreenshotOverlay()">
+                    <i class="fas fa-times"></i>
+                </div>
+                <div id="screenshot-image-container"></div>
+                <div class="screenshot-actions">
+                    <button class="screenshot-btn cancel" onclick="closeScreenshotOverlay()">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button class="screenshot-btn" onclick="downloadScreenshot()">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                    <button class="screenshot-btn" onclick="shareToFacebook()">
+                        <i class="fab fa-facebook-f"></i> Share to Facebook
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Removed floating button that was blocking content -->
 
         <div class="app-header" data-aos="fade-down">
@@ -122,8 +143,8 @@
                                 <p>You're on your way to multiversal dominance.</p>
                                 <div class="share-container">
                                     <span class="share-label">Share:</span>
-                                    <button class="share-btn" onclick="shareAchievement()">
-                                        <i class="fab fa-facebook-f"></i> Share Achievement
+                                    <button class="share-btn" onclick="captureScreenshot('achievement-banner', 'achievement')" title="Share Achievement">
+                                        <i class="fas fa-share-alt"></i>
                                     </button>
                                 </div>
                             </div>
@@ -145,8 +166,8 @@
                         </div>
                         <div class="share-container">
                             <span class="share-label">Share current status:</span>
-                            <button class="share-btn" onclick="shareCurrentStatus()">
-                                <i class="fab fa-facebook-f"></i> Share Status
+                            <button class="share-btn" onclick="captureScreenshot('status-container', 'current-status')" title="Share Current Status">
+                                <i class="fas fa-share-alt"></i>
                             </button>
                         </div>
                     </div>
@@ -184,8 +205,8 @@
                         </div>
                         <div class="share-container">
                             <span class="share-label">Share your stats:</span>
-                            <button class="share-btn" onclick="shareStats()">
-                                <i class="fab fa-facebook-f"></i> Share Stats
+                            <button class="share-btn" onclick="captureScreenshot('player-stats', 'stats')" title="Share Your Stats">
+                                <i class="fas fa-share-alt"></i>
                             </button>
                         </div>
                     </div>
@@ -217,8 +238,8 @@
                                 <ol id="cumulative-list" class="leaderboard-list"></ol>
                                 <div class="share-container">
                                     <span class="share-label">Share leaderboard:</span>
-                                    <button class="share-btn" onclick="shareLeaderboard('total')">
-                                        <i class="fab fa-facebook-f"></i> Share
+                                    <button class="share-btn" onclick="captureScreenshot('cumulative-leaderboard', 'total-leaderboard')" title="Share Total Time Leaderboard">
+                                        <i class="fas fa-share-alt"></i>
                                     </button>
                                 </div>
                             </div>
@@ -228,8 +249,8 @@
                                 <ol id="reign-list" class="leaderboard-list"></ol>
                                 <div class="share-container">
                                     <span class="share-label">Share leaderboard:</span>
-                                    <button class="share-btn" onclick="shareLeaderboard('reign')">
-                                        <i class="fab fa-facebook-f"></i> Share
+                                    <button class="share-btn" onclick="captureScreenshot('reign-leaderboard', 'reign-leaderboard')" title="Share Longest Reigns Leaderboard">
+                                        <i class="fas fa-share-alt"></i>
                                     </button>
                                 </div>
                             </div>
@@ -261,6 +282,12 @@
     <!-- Facebook SDK for sharing -->
     <div id="fb-root"></div>
     <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v18.0" nonce="random123"></script>
+
+    <!-- html2canvas for screenshot sharing -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+    <!-- FileSaver.js for saving screenshots -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
     <!-- Main Script -->
     <script src="script.js"></script>

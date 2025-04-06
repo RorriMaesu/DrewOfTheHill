@@ -854,56 +854,163 @@ function generateActivityParticipant() {
 
 // --- Social Sharing Functions ---
 
-function shareAchievement() {
-    const achievementTitle = document.querySelector('#achievement-banner h4').textContent;
-    const achievementMessage = document.querySelector('#achievement-banner p').textContent;
+// Variables to store screenshot data
+let currentScreenshot = null;
+let currentShareType = null;
 
-    const shareText = `I just unlocked "${achievementTitle}" in Drew of the Hill! ${achievementMessage}`;
-    const shareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
-
-    // Open Facebook share dialog
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`, '_blank');
-}
-
-function shareStats() {
-    const designation = document.getElementById('your-designation-display').textContent;
-    const totalTime = document.getElementById('your-total-time').textContent;
-    const longestReign = document.getElementById('your-longest-reign').textContent;
-
-    const shareText = `I, ${designation}, have been the One True Drew for a total of ${totalTime} with my longest reign being ${longestReign}! Can you beat my record in Drew of the Hill?`;
-    const shareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
-
-    // Open Facebook share dialog
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`, '_blank');
-}
-
-function shareLeaderboard(type) {
-    let leaderboardType = type === 'total' ? 'Total Time' : 'Longest Reigns';
-    let leaderboardList = type === 'total' ? document.getElementById('cumulative-list') : document.getElementById('reign-list');
-
-    // Get top 3 entries
-    let topEntries = [];
-    const listItems = leaderboardList.querySelectorAll('li');
-    for (let i = 0; i < Math.min(3, listItems.length); i++) {
-        topEntries.push(listItems[i].textContent);
+// Function to capture a screenshot of a specific element
+function captureScreenshot(elementId, shareType) {
+    const element = document.getElementById(elementId);
+    if (!element) {
+        console.error(`Element with ID ${elementId} not found`);
+        return;
     }
 
-    const shareText = `Check out the Drew of the Hill ${leaderboardType} leaderboard!\n\nTop 3:\n1. ${topEntries[0] || 'No entries yet'}\n2. ${topEntries[1] || 'No entries yet'}\n3. ${topEntries[2] || 'No entries yet'}`;
-    const shareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
+    // Store the share type for later use
+    currentShareType = shareType;
 
-    // Open Facebook share dialog
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`, '_blank');
+    // Add a temporary class for styling during screenshot
+    element.classList.add('screenshot-capture');
+
+    // Use html2canvas to capture the element
+    html2canvas(element, {
+        backgroundColor: '#1a2539', // Match the card background color
+        scale: 2, // Higher resolution
+        logging: false,
+        allowTaint: true,
+        useCORS: true
+    }).then(canvas => {
+        // Remove the temporary class
+        element.classList.remove('screenshot-capture');
+
+        // Store the canvas data
+        currentScreenshot = canvas;
+
+        // Display the screenshot in the overlay
+        const imageContainer = document.getElementById('screenshot-image-container');
+        imageContainer.innerHTML = '';
+        imageContainer.appendChild(canvas);
+
+        // Show the overlay
+        const overlay = document.getElementById('screenshot-overlay');
+        overlay.classList.add('active');
+
+        // Add game branding to the canvas
+        addBranding(canvas);
+    }).catch(error => {
+        console.error('Error capturing screenshot:', error);
+        element.classList.remove('screenshot-capture');
+        alert('Failed to capture screenshot. Please try again.');
+    });
 }
 
-function shareCurrentStatus() {
-    const currentDrew = document.getElementById('current-drew').textContent;
-    const reignTime = document.getElementById('current-reign-time').textContent;
+// Add branding to the screenshot
+function addBranding(canvas) {
+    const ctx = canvas.getContext('2d');
 
-    const shareText = `${currentDrew} is currently the One True Drew with a reign time of ${reignTime}! Will you be the next to claim the hill?`;
+    // Add a gradient footer
+    const gradient = ctx.createLinearGradient(0, canvas.height - 40, 0, canvas.height);
+    gradient.addColorStop(0, 'rgba(26, 37, 57, 0.8)');
+    gradient.addColorStop(1, 'rgba(26, 37, 57, 1)');
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
+
+    // Add text
+    ctx.fillStyle = '#3de180';
+    ctx.font = 'bold 20px Montserrat, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Drew of the Hill - Council of Andrew', canvas.width / 2, canvas.height - 20);
+}
+
+// Close the screenshot overlay
+function closeScreenshotOverlay() {
+    const overlay = document.getElementById('screenshot-overlay');
+    overlay.classList.remove('active');
+    currentScreenshot = null;
+}
+
+// Download the screenshot
+function downloadScreenshot() {
+    if (!currentScreenshot) {
+        alert('No screenshot available to download');
+        return;
+    }
+
+    // Convert canvas to blob
+    currentScreenshot.toBlob(function(blob) {
+        // Use FileSaver.js to save the file
+        saveAs(blob, `drew-of-the-hill-${currentShareType}-${Date.now()}.png`);
+    });
+}
+
+// Share to Facebook
+function shareToFacebook() {
+    if (!currentScreenshot) {
+        alert('No screenshot available to share');
+        return;
+    }
+
+    // Get share text based on the type
+    let shareText = getShareText(currentShareType);
+
+    // Convert canvas to data URL
+    const imageData = currentScreenshot.toDataURL('image/png');
+
+    // Since Facebook doesn't allow direct image sharing via URL parameters,
+    // we'll open the Facebook share dialog with text and let the user attach the image manually
+    // after downloading it
+
     const shareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
-
-    // Open Facebook share dialog
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`, '_blank');
+
+    // Prompt user to download the image first
+    setTimeout(() => {
+        if (confirm('Facebook requires you to manually attach the image. Would you like to download it now?')) {
+            downloadScreenshot();
+        }
+    }, 1000);
+}
+
+// Get appropriate share text based on the type
+function getShareText(type) {
+    switch(type) {
+        case 'achievement':
+            const achievementTitle = document.querySelector('#achievement-banner h4').textContent;
+            const achievementMessage = document.querySelector('#achievement-banner p').textContent;
+            return `I just unlocked "${achievementTitle}" in Drew of the Hill! ${achievementMessage}`;
+
+        case 'stats':
+            const designation = document.getElementById('your-designation-display').textContent;
+            const totalTime = document.getElementById('your-total-time').textContent;
+            const longestReign = document.getElementById('your-longest-reign').textContent;
+            return `I, ${designation}, have been the One True Drew for a total of ${totalTime} with my longest reign being ${longestReign}! Can you beat my record in Drew of the Hill?`;
+
+        case 'total-leaderboard':
+            let totalTopEntries = [];
+            const totalListItems = document.getElementById('cumulative-list').querySelectorAll('li');
+            for (let i = 0; i < Math.min(3, totalListItems.length); i++) {
+                totalTopEntries.push(totalListItems[i].textContent);
+            }
+            return `Check out the Drew of the Hill Total Time leaderboard!\n\nTop 3:\n1. ${totalTopEntries[0] || 'No entries yet'}\n2. ${totalTopEntries[1] || 'No entries yet'}\n3. ${totalTopEntries[2] || 'No entries yet'}`;
+
+        case 'reign-leaderboard':
+            let reignTopEntries = [];
+            const reignListItems = document.getElementById('reign-list').querySelectorAll('li');
+            for (let i = 0; i < Math.min(3, reignListItems.length); i++) {
+                reignTopEntries.push(reignListItems[i].textContent);
+            }
+            return `Check out the Drew of the Hill Longest Reigns leaderboard!\n\nTop 3:\n1. ${reignTopEntries[0] || 'No entries yet'}\n2. ${reignTopEntries[1] || 'No entries yet'}\n3. ${reignTopEntries[2] || 'No entries yet'}`;
+
+        case 'current-status':
+            const currentDrew = document.getElementById('current-drew').textContent;
+            const reignTime = document.getElementById('current-reign-time').textContent;
+            return `${currentDrew} is currently the One True Drew with a reign time of ${reignTime}! Will you be the next to claim the hill?`;
+
+        default:
+            return 'Check out Drew of the Hill - A game for the Council of Andrew across the multiverse!';
+    }
 }
 
 // --- Buy Me a Coffee Strategic Marketing Functions ---
