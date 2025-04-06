@@ -798,27 +798,26 @@ let bmcElementsInitialized = false;
 function initBuyMeCoffeeElements() {
     if (bmcElementsInitialized) return;
     
-    // Set up floating button behavior
-    const floatButton = document.querySelector('.bmc-float-button');
-    if (floatButton) {
-        // Initially hidden
-        setTimeout(() => {
-            floatButton.classList.add('visible');
-        }, 40000); // Show after 40 seconds of engagement
-    }
-    
-    // Set up achievement banner behavior
-    const achievementBanner = document.getElementById('achievement-banner');
-    if (achievementBanner) {
-        // Initially hidden - will be shown on significant events
-    }
-    
-    // Add interaction counting for psychological timing
+    // Add global click listener to track meaningful interactions
     document.addEventListener('click', incrementInteractionCount);
+    
+    // Only create a floating button if one doesn't already exist
+    if (!document.querySelector('.bmc-float-button')) {
+        const floatButton = document.createElement('div');
+        floatButton.className = 'bmc-float-button';
+        floatButton.innerHTML = `
+            <a href="https://buymeacoffee.com/rorrimaesu" target="_blank" title="Support Drew of the Hill">
+                <img src="capitalismsucksbutiamsuperpassionateaboutbeingabletoaffordfood.png" alt="Buy Me A Coffee">
+            </a>
+        `;
+        document.body.appendChild(floatButton);
+        
+        // Let it appear after initial interactions or scrolling
+        console.log("Floating BMC button created and added to the page");
+    }
     
     // Set initial state
     bmcElementsInitialized = true;
-    console.log("Buy Me a Coffee elements initialized");
 }
 
 function incrementInteractionCount(e) {
