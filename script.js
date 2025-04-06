@@ -1480,20 +1480,24 @@ function directFacebookShare(shareUrl, shareText, imageUrl) {
     console.log('Share text:', shareText);
     console.log('Image URL:', imageUrl);
 
-    // Prepare the share text
-    let fullShareText;
+    // Create a share URL that includes the image
+    let sharePageUrl;
+
     if (imageUrl) {
-        // Include the image URL in the text if available
-        fullShareText = `${shareText}\n\nCheck out my screenshot: ${imageUrl}`;
+        // Use our custom share page with the image and text as parameters
+        const baseShareUrl = window.location.origin + window.location.pathname.replace('index.html', '') + 'share.html';
+        sharePageUrl = `${baseShareUrl}?img=${encodeURIComponent(imageUrl)}&text=${encodeURIComponent(shareText)}`;
+        console.log('Generated share page URL:', sharePageUrl);
     } else {
-        // Just use the regular share text if no image URL
-        fullShareText = shareText;
+        // If no image, just use the main URL
+        sharePageUrl = shareUrl;
     }
 
     try {
         // Use a timeout to ensure the window opens properly
         setTimeout(() => {
-            const fbShareWindow = window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(fullShareText)}`, '_blank', 'width=600,height=400');
+            // Share the URL to our share page which has proper Open Graph tags
+            const fbShareWindow = window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(sharePageUrl)}`, '_blank', 'width=600,height=400');
 
             if (!fbShareWindow || fbShareWindow.closed || typeof fbShareWindow.closed === 'undefined') {
                 // Popup was blocked
