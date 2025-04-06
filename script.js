@@ -1569,44 +1569,24 @@ function closeSharingOverlay() {
     }
 }
 
-// Direct Facebook share
+// Direct Facebook share - simplified approach
 function directFacebookShare(shareUrl, shareText, imageUrl) {
     console.log('Sharing to Facebook with URL:', shareUrl);
     console.log('Share text:', shareText);
     console.log('Image URL:', imageUrl);
 
     try {
-        // Always use the GitHub Pages URL for sharing to ensure consistency
-        const baseShareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/share.html';
+        // Use a very simple approach - just share the main URL
+        // Facebook will scrape the page for Open Graph tags
+        const mainUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
 
-        // Clean and prepare the text for sharing
-        let cleanText = shareText || '';
-        // Remove any characters that might cause issues in URLs
-        cleanText = cleanText.replace(/[\r\n]+/g, ' ').trim();
+        // Create a simple share dialog URL
+        const fbShareUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(mainUrl);
 
-        // Create the share URL
-        let sharePageUrl;
+        console.log('Opening Facebook share window with URL:', fbShareUrl);
 
-        if (imageUrl) {
-            // Use our custom share page with the image and text as parameters
-            sharePageUrl = baseShareUrl +
-                '?img=' + encodeURIComponent(imageUrl) +
-                '&text=' + encodeURIComponent(cleanText);
-            console.log('Generated share page URL:', sharePageUrl);
-        } else {
-            // If no image, just use the main URL
-            sharePageUrl = shareUrl;
-        }
-
-        // Use a timeout to ensure the window opens properly
+        // Open the share window with a delay to ensure it works properly
         setTimeout(() => {
-            // Create the Facebook share URL
-            const fbShareUrl = 'https://www.facebook.com/sharer/sharer.php?u=' +
-                encodeURIComponent(sharePageUrl);
-
-            console.log('Opening Facebook share window with URL:', fbShareUrl);
-
-            // Open the share window
             const fbShareWindow = window.open(fbShareUrl, '_blank', 'width=600,height=400');
 
             if (!fbShareWindow || fbShareWindow.closed || typeof fbShareWindow.closed === 'undefined') {
@@ -1615,19 +1595,110 @@ function directFacebookShare(shareUrl, shareText, imageUrl) {
                 alert('The Facebook share window was blocked by your browser. Please allow popups for this site or use the Copy Link option instead.');
             }
         }, 100);
+
+        // If we have an image, show it to the user in a sharing overlay
+        if (imageUrl) {
+            // Show the sharing overlay with the image and text
+            showSimpleSharingOverlay(imageUrl, shareText);
+        }
     } catch (error) {
         console.error('Error in Facebook sharing process:', error);
-
-        // Fallback to basic sharing
-        try {
-            const basicShareUrl = 'https://www.facebook.com/sharer/sharer.php?u=' +
-                encodeURIComponent(shareUrl);
-            window.open(basicShareUrl, '_blank', 'width=600,height=400');
-        } catch (fallbackError) {
-            console.error('Fallback sharing also failed:', fallbackError);
-            alert('Unable to open Facebook share window. Please try using the Copy Link option instead.');
-        }
+        alert('Unable to share to Facebook. Please try again later.');
     }
+}
+
+// Show a simple sharing overlay with the image and text
+function showSimpleSharingOverlay(imageUrl, shareText) {
+    // Close any existing overlays
+    closeScreenshotOverlay();
+    closeFbInstructions();
+
+    // Create sharing overlay
+    const sharingOverlay = document.createElement('div');
+    sharingOverlay.className = 'sharing-overlay';
+    sharingOverlay.innerHTML = `
+        <div class="sharing-container">
+            <div class="sharing-close" onclick="closeSimpleSharingOverlay()">
+                <i class="fas fa-times"></i>
+            </div>
+            <h3><i class="fas fa-share-alt"></i> Your Screenshot</h3>
+            <div class="sharing-image-container">
+                <img src="${imageUrl}" alt="Drew of the Hill Screenshot" class="sharing-image">
+            </div>
+            <div class="sharing-text">
+                <p>${shareText}</p>
+            </div>
+            <div class="sharing-options">
+                <button class="sharing-option copy" onclick="copyImageLink('${imageUrl}')">
+                    <i class="fas fa-link"></i> Copy Image Link
+                </button>
+                <button class="sharing-option download" onclick="downloadImageDirect('${imageUrl}')">
+                    <i class="fas fa-download"></i> Download Image
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(sharingOverlay);
+
+    // Show with animation
+    setTimeout(() => {
+        sharingOverlay.classList.add('active');
+    }, 10);
+}
+
+// Close the simple sharing overlay
+function closeSimpleSharingOverlay() {
+    const overlay = document.querySelector('.sharing-overlay');
+    if (overlay) {
+        overlay.classList.remove('active');
+        setTimeout(() => {
+            document.body.removeChild(overlay);
+        }, 300);
+    }
+}
+
+// Copy image link to clipboard
+function copyImageLink(imageUrl) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(imageUrl)
+            .then(() => {
+                alert('Image link copied to clipboard!');
+            })
+            .catch(err => {
+                console.error('Failed to copy image link:', err);
+                alert('Failed to copy image link. Please try again.');
+            });
+    } else {
+        // Fallback for browsers that don't support clipboard API
+        const textarea = document.createElement('textarea');
+        textarea.value = imageUrl;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+
+        try {
+            document.execCommand('copy');
+            alert('Image link copied to clipboard!');
+        } catch (err) {
+            console.error('Failed to copy image link:', err);
+            alert('Failed to copy image link. Please try again.');
+        }
+
+        document.body.removeChild(textarea);
+    }
+}
+
+// Download image directly
+function downloadImageDirect(imageUrl) {
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = 'drew-of-the-hill-screenshot.png';
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 // Direct Twitter share
