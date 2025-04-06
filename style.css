@@ -71,7 +71,7 @@ body {
     transition: background-color var(--transition-speed-slow) ease;
 }
 
-/* Portal Background Effects */
+/* Portal Background Effects - Optimized for Performance */
 .portal-background {
     position: fixed;
     top: 0;
@@ -80,19 +80,20 @@ body {
     height: 100%;
     overflow: hidden;
     z-index: -1;
-    opacity: 0.7;
+    opacity: 0.6;
     pointer-events: none;
+    will-change: transform; /* Performance optimization */
 }
 
 .portal {
     position: absolute;
     border-radius: 50%;
-    filter: blur(60px);
-    opacity: 0.7;
+    filter: blur(40px); /* Reduced blur for better performance */
+    opacity: 0.6;
     background-size: 400% 400%;
-    animation: portalSpin 20s linear infinite;
-    mix-blend-mode: screen;
+    animation: portalSpin 30s linear infinite;
     transform-origin: center center;
+    will-change: transform; /* Performance optimization */
 }
 
 .portal1 {
@@ -104,11 +105,10 @@ body {
         var(--portal-green),
         var(--portal-blue),
         var(--portal-purple),
-        var(--portal-pink),
         var(--portal-green)
     );
-    animation: portalSpin 25s linear infinite, float 20s ease-in-out infinite, pulse 8s ease-in-out infinite alternate;
-    box-shadow: 0 0 80px rgba(61, 225, 128, 0.3);
+    animation: portalSpin 30s linear infinite; /* Simplified animation */
+    box-shadow: 0 0 60px rgba(61, 225, 128, 0.2); /* Reduced shadow */
 }
 
 .portal2 {
@@ -118,13 +118,12 @@ body {
     height: 700px;
     background: conic-gradient(
         var(--portal-purple),
-        var(--portal-pink),
         var(--portal-green),
         var(--portal-blue),
         var(--portal-purple)
     );
-    animation: portalSpin 30s linear infinite reverse, float 22s ease-in-out infinite reverse, pulse 10s ease-in-out infinite alternate-reverse;
-    box-shadow: 0 0 100px rgba(185, 103, 255, 0.3);
+    animation: portalSpin 40s linear infinite reverse; /* Simplified animation */
+    box-shadow: 0 0 70px rgba(185, 103, 255, 0.2); /* Reduced shadow */
 }
 
 .portal3 {
@@ -135,15 +134,14 @@ body {
     background: conic-gradient(
         var(--portal-blue),
         var(--portal-purple),
-        var(--portal-pink),
         var(--portal-green),
         var(--portal-blue)
     );
-    animation: portalSpin 20s linear infinite, float 15s ease-in-out infinite alternate, pulse 12s ease-in-out infinite;
-    box-shadow: 0 0 60px rgba(71, 236, 255, 0.3);
+    animation: portalSpin 35s linear infinite; /* Simplified animation */
+    box-shadow: 0 0 50px rgba(71, 236, 255, 0.2); /* Reduced shadow */
 }
 
-/* Add a fourth portal for more visual interest */
+/* Simplified fourth portal */
 .portal4 {
     bottom: 20%;
     right: 25%;
@@ -153,37 +151,25 @@ body {
         var(--portal-pink),
         var(--portal-blue),
         var(--portal-green),
-        var(--portal-purple),
         var(--portal-pink)
     );
-    animation: portalSpin 22s linear infinite reverse, float 18s ease-in-out infinite, pulse 9s ease-in-out infinite alternate-reverse;
-    box-shadow: 0 0 70px rgba(255, 60, 130, 0.3);
-    opacity: 0.6;
+    animation: portalSpin 45s linear infinite reverse; /* Simplified animation */
+    box-shadow: 0 0 40px rgba(255, 60, 130, 0.2); /* Reduced shadow */
+    opacity: 0.5;
 }
 
+/* Optimized animations for better performance */
 @keyframes portalSpin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
-@keyframes float {
-    0% { transform: translate(0, 0); }
-    25% { transform: translate(20px, 35px); }
-    50% { transform: translate(40px, 25px); }
-    75% { transform: translate(15px, -20px); }
-    100% { transform: translate(0, 0); }
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); opacity: 0.5; filter: blur(60px); }
-    50% { transform: scale(1.2); opacity: 0.8; filter: blur(70px); }
-    100% { transform: scale(1); opacity: 0.5; filter: blur(60px); }
-}
+/* Simplified animations - removed for performance */
+/* Float and pulse animations removed to improve performance */
 
 @keyframes shimmer {
     0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
 }
 
 .page-container {
@@ -252,84 +238,62 @@ body {
     margin: 0 auto;
 }
 
-/* Card Styling - Glass Morphism */
+/* Card Styling - Optimized for Performance */
 .card {
-    background: linear-gradient(135deg, rgba(26, 37, 57, 0.9), rgba(17, 24, 39, 0.8));
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: rgba(26, 37, 57, 0.9);
+    /* Reduced backdrop-filter for better performance */
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
     border-radius: var(--border-radius-lg);
-    box-shadow: var(--premium-shadow);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
     margin-bottom: 30px;
     overflow: hidden;
-    transition: all var(--transition-speed);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     transform: translateY(0);
     border: 1px solid rgba(61, 225, 128, 0.15);
     position: relative;
+    will-change: transform; /* Performance optimization */
 }
 
-.card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(61, 225, 128, 0.5), transparent);
-    opacity: 0;
-    transition: opacity var(--transition-speed) ease;
-}
+/* Removed ::before pseudo-element for performance */
 
 .card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(61, 225, 128, 0.2);
+    transform: translateY(-5px); /* Reduced movement */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(61, 225, 128, 0.25);
-}
-
-.card:hover::before {
-    opacity: 1;
 }
 
 .card-header {
     display: flex;
     align-items: center;
-    padding: 22px 28px;
-    background: linear-gradient(to right, rgba(17, 24, 39, 0.95), rgba(26, 37, 57, 0.8));
+    padding: 20px 25px;
+    background: rgba(17, 24, 39, 0.95); /* Simplified background */
     border-bottom: 1px solid rgba(61, 225, 128, 0.15);
     position: relative;
-    overflow: hidden;
 }
 
 .icon-wrapper {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 48px;
-    height: 48px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-    margin-right: 18px;
-    box-shadow: 0 0 20px rgba(61, 225, 128, 0.4);
+    background: var(--primary-color); /* Simplified background */
+    margin-right: 15px;
+    box-shadow: 0 0 10px rgba(61, 225, 128, 0.3); /* Reduced shadow */
     position: relative;
     overflow: hidden;
-    transition: all var(--transition-speed) ease;
 }
 
-.icon-wrapper::before {
-    content: '';
-    position: absolute;
-    width: 150%;
-    height: 150%;
-    background: rgba(255, 255, 255, 0.15);
-    transform: rotate(45deg) translateX(-180px);
-    animation: shine 3s infinite 1s;
-}
+/* Removed icon-wrapper::before animation for performance */
 
 .icon-wrapper::after {
     content: '';
     position: absolute;
     inset: 3px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
+    background: var(--primary-light); /* Simplified background */
     z-index: 0;
 }
 

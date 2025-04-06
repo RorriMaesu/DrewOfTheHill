@@ -431,16 +431,17 @@ function handleHillClick() {
 
 // --- Initialization ---
 function initApp() {
-    // Initialize AOS (Animate on Scroll) library
+    // Initialize AOS (Animate on Scroll) library - optimized for performance
     if (typeof AOS !== 'undefined') {
         AOS.init({
-            duration: 1000,
+            duration: 800,
             easing: 'ease-out',
-            once: false,
-            mirror: true,
-            offset: 50,
-            delay: 100,
-            anchorPlacement: 'top-bottom'
+            once: true, // Only animate once for better performance
+            mirror: false, // Disable mirroring for better performance
+            offset: 100,
+            delay: 0, // Remove delay for better performance
+            throttleDelay: 99, // Add throttling for better performance
+            disable: window.innerWidth < 768 ? true : false // Disable on mobile for better performance
         });
     } else {
         console.warn('AOS library not loaded. Some animations may not work.');
