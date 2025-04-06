@@ -1752,6 +1752,9 @@ h1:hover, h2:hover, h3:hover {
     animation: achievementAppear 0.5s forwards;
     position: relative;
     overflow: hidden;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
 }
 
 .achievement-banner::before {
@@ -1779,8 +1782,8 @@ h1:hover, h2:hover, h3:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 45px;
-    height: 45px;
+    width: 40px;
+    height: 40px;
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     border-radius: 50%;
     margin-right: 15px;
@@ -1790,11 +1793,12 @@ h1:hover, h2:hover, h3:hover {
 
 .achievement-icon i {
     color: var(--card-darker);
-    font-size: 20px;
+    font-size: 18px;
 }
 
 .achievement-text {
     flex: 1;
+    min-width: 0;
 }
 
 .achievement-text h4 {
@@ -1815,10 +1819,13 @@ h1:hover, h2:hover, h3:hover {
     padding: 8px 15px;
     background: linear-gradient(135deg, rgba(61, 225, 128, 0.15), rgba(47, 168, 204, 0.15));
     border-radius: 20px;
-    margin-left: 15px;
+    margin-left: 0;
     text-decoration: none;
     transition: all 0.3s ease;
     border: 1px solid rgba(61, 225, 128, 0.3);
+    flex-shrink: 0;
+    min-width: 160px;
+    justify-content: center;
 }
 
 .achievement-support-btn:hover {
@@ -1861,16 +1868,24 @@ h1:hover, h2:hover, h3:hover {
     .achievement-banner {
         flex-direction: column;
         text-align: center;
+        padding: 15px 10px;
+        gap: 15px;
     }
 
     .achievement-icon {
         margin-right: 0;
-        margin-bottom: 10px;
+        margin-bottom: 5px;
+    }
+
+    .achievement-text {
+        width: 100%;
+        margin-bottom: 5px;
     }
 
     .achievement-support-btn {
-        margin-left: 0;
-        margin-top: 12px;
+        margin: 0;
+        width: 100%;
+        max-width: 220px;
     }
 
     .header-actions {
@@ -1888,6 +1903,31 @@ h1:hover, h2:hover, h3:hover {
 
     .bmc-float-button img {
         width: 30px;
+    }
+
+    .achievement-banner {
+        padding: 12px 8px;
+    }
+
+    .achievement-text h4 {
+        font-size: 15px;
+    }
+
+    .achievement-text p {
+        font-size: 13px;
+    }
+
+    .achievement-support-btn {
+        padding: 6px 12px;
+        min-width: 140px;
+    }
+
+    .achievement-support-btn img {
+        width: 20px;
+    }
+
+    .achievement-support-btn span {
+        font-size: 12px;
     }
 }
 
