@@ -2240,6 +2240,151 @@ h1:hover, h2:hover, h3:hover {
     display: none !important;
 }
 
+/* Facebook Instructions Overlay */
+.fb-instructions-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.fb-instructions-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.fb-instructions-container {
+    background: var(--card-color);
+    border-radius: var(--border-radius);
+    width: 90%;
+    max-width: 500px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    position: relative;
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+}
+
+.fb-instructions-overlay.active .fb-instructions-container {
+    transform: translateY(0);
+}
+
+.fb-instructions-container h3 {
+    color: #3b5998;
+    margin-top: 0;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    font-size: 1.5rem;
+}
+
+.fb-instructions-container h3 i {
+    margin-right: 10px;
+    font-size: 1.8rem;
+}
+
+.fb-instructions-content p {
+    margin-bottom: 20px;
+    color: var(--text-color);
+}
+
+.fb-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.fb-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.step-number {
+    width: 30px;
+    height: 30px;
+    background: #3b5998;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.step-text {
+    flex: 1;
+    padding-top: 5px;
+}
+
+.fb-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.fb-action-btn {
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.fb-action-btn:not(.cancel) {
+    background: #3b5998;
+    color: white;
+}
+
+.fb-action-btn.cancel {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-color);
+}
+
+.fb-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.fb-action-btn:not(.cancel):hover {
+    background: #4267B2;
+}
+
+.fb-action-btn.cancel:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 480px) {
+    .fb-instructions-container {
+        padding: 20px 15px;
+    }
+
+    .fb-actions {
+        flex-direction: column-reverse;
+    }
+
+    .fb-action-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
 @media (max-width: 480px) {
     .share-btn {
         width: 32px;

@@ -1024,7 +1024,8 @@ function shareToFacebook() {
     const tempLink = document.createElement('a');
     tempLink.style.display = 'none';
     tempLink.href = imageData;
-    tempLink.download = `drew-of-the-hill-${currentShareType}-${Date.now()}.png`;
+    const fileName = `drew-of-the-hill-${currentShareType}-${Date.now()}.png`;
+    tempLink.download = fileName;
     document.body.appendChild(tempLink);
 
     // Automatically download the image
@@ -1035,12 +1036,70 @@ function shareToFacebook() {
         document.body.removeChild(tempLink);
     }, 100);
 
-    // Open Facebook share dialog
+    // Create a more detailed instruction overlay
+    closeScreenshotOverlay(); // Close the current overlay
+
+    // Create and show the Facebook sharing instructions overlay
+    const fbInstructionsOverlay = document.createElement('div');
+    fbInstructionsOverlay.className = 'fb-instructions-overlay';
+    fbInstructionsOverlay.innerHTML = `
+        <div class="fb-instructions-container">
+            <h3><i class="fab fa-facebook"></i> Share to Facebook</h3>
+            <div class="fb-instructions-content">
+                <p>The image has been downloaded to your device as: <strong>${fileName}</strong></p>
+                <div class="fb-steps">
+                    <div class="fb-step">
+                        <div class="step-number">1</div>
+                        <div class="step-text">Click the button below to open Facebook</div>
+                    </div>
+                    <div class="fb-step">
+                        <div class="step-number">2</div>
+                        <div class="step-text">In the Facebook share dialog, click <strong>"Add Photos/Videos"</strong></div>
+                    </div>
+                    <div class="fb-step">
+                        <div class="step-number">3</div>
+                        <div class="step-text">Select the downloaded image from your device</div>
+                    </div>
+                    <div class="fb-step">
+                        <div class="step-number">4</div>
+                        <div class="step-text">Add your comment and click <strong>"Post"</strong></div>
+                    </div>
+                </div>
+                <div class="fb-actions">
+                    <button class="fb-action-btn cancel" onclick="closeFbInstructions()">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button class="fb-action-btn" onclick="openFacebookShare('${shareText}')">
+                        <i class="fab fa-facebook-f"></i> Open Facebook
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(fbInstructionsOverlay);
+
+    // Show the overlay with animation
+    setTimeout(() => {
+        fbInstructionsOverlay.classList.add('active');
+    }, 10);
+}
+
+// Open Facebook share dialog
+function openFacebookShare(shareText) {
     const shareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`, '_blank');
+}
 
-    // Show instructions to the user
-    alert('The image has been downloaded to your device. To share it on Facebook, click "Add Photos/Videos" in the Facebook share dialog that just opened, then select the downloaded image.');
+// Close Facebook instructions overlay
+function closeFbInstructions() {
+    const overlay = document.querySelector('.fb-instructions-overlay');
+    if (overlay) {
+        overlay.classList.remove('active');
+        setTimeout(() => {
+            document.body.removeChild(overlay);
+        }, 300);
+    }
 }
 
 // Get appropriate share text based on the type
