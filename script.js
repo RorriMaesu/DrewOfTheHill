@@ -1390,7 +1390,10 @@ function hideLoadingOverlay() {
     if (overlay) {
         overlay.classList.remove('active');
         setTimeout(() => {
-            document.body.removeChild(overlay);
+            // Check if the overlay is still in the DOM before removing
+            if (overlay.parentNode) {
+                overlay.parentNode.removeChild(overlay);
+            }
         }, 300);
     }
 }
@@ -1515,55 +1518,71 @@ function shareToFacebookWithImage(imageUrl, shareText) {
 
 // Share to Facebook directly with the image blob
 function shareToFacebookDirect(imageBlob, shareText) {
-    console.log('Using direct Facebook sharing with blob');
+    console.log('Using direct Facebook sharing with blob:', imageBlob);
     hideLoadingOverlay();
 
-    // Convert the blob to a data URL
-    const reader = new FileReader();
-    reader.onload = function(event) {
-        const dataUrl = event.target.result;
-        console.log('Converted blob to data URL');
+    // Check if we have a valid blob
+    if (!imageBlob) {
+        console.log('No valid image blob provided, using text-only sharing');
+        // Fallback to text-only sharing
+        const shareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
+        directFacebookShare(shareUrl, shareText, null);
+        return;
+    }
 
-        // Create a temporary canvas to display the image
-        const tempCanvas = document.createElement('canvas');
-        const tempImg = new Image();
-        tempImg.onload = function() {
-            // Set canvas dimensions to match the image
-            tempCanvas.width = tempImg.width;
-            tempCanvas.height = tempImg.height;
+    try {
+        // Convert the blob to a data URL
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const dataUrl = event.target.result;
+            console.log('Converted blob to data URL');
 
-            // Draw the image on the canvas
-            const ctx = tempCanvas.getContext('2d');
-            ctx.drawImage(tempImg, 0, 0);
+            // Create a temporary canvas to display the image
+            const tempCanvas = document.createElement('canvas');
+            const tempImg = new Image();
+            tempImg.onload = function() {
+                // Set canvas dimensions to match the image
+                tempCanvas.width = tempImg.width;
+                tempCanvas.height = tempImg.height;
 
-            // Convert canvas to data URL (this is a different format than the original)
-            const canvasDataUrl = tempCanvas.toDataURL('image/png');
+                // Draw the image on the canvas
+                const ctx = tempCanvas.getContext('2d');
+                ctx.drawImage(tempImg, 0, 0);
 
-            // Show sharing overlay with the canvas data URL
-            const shareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
-            showSharingOverlay(canvasDataUrl, shareText, shareUrl);
+                // Convert canvas to data URL (this is a different format than the original)
+                const canvasDataUrl = tempCanvas.toDataURL('image/png');
+
+                // Show sharing overlay with the canvas data URL
+                const shareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
+                showSharingOverlay(canvasDataUrl, shareText, shareUrl);
+            };
+
+            tempImg.onerror = function() {
+                console.error('Error loading image from data URL');
+                // Fallback to text-only sharing
+                const shareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
+                directFacebookShare(shareUrl, shareText, null);
+            };
+
+            // Set the source to start loading
+            tempImg.src = dataUrl;
         };
 
-        tempImg.onerror = function() {
-            console.error('Error loading image from data URL');
+        reader.onerror = function() {
+            console.error('Error reading blob as data URL');
             // Fallback to text-only sharing
             const shareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
             directFacebookShare(shareUrl, shareText, null);
         };
 
-        // Set the source to start loading
-        tempImg.src = dataUrl;
-    };
-
-    reader.onerror = function() {
-        console.error('Error reading blob as data URL');
+        // Start reading the blob
+        reader.readAsDataURL(imageBlob);
+    } catch (error) {
+        console.error('Error in shareToFacebookDirect:', error);
         // Fallback to text-only sharing
         const shareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
         directFacebookShare(shareUrl, shareText, null);
-    };
-
-    // Start reading the blob
-    reader.readAsDataURL(imageBlob);
+    }
 }
 
 // Show sharing overlay with image and options
