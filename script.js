@@ -1302,36 +1302,54 @@ function hideLoadingOverlay() {
 
 // Upload image to Imgur
 function uploadToImgur(imageBlob, shareText) {
+    console.log('Attempting to upload image to Imgur');
+
     // Create FormData for the upload
     const formData = new FormData();
     formData.append('image', imageBlob);
 
-    // Use fetch API to upload to Imgur
+    // Use fetch API with timeout to upload to Imgur
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
     fetch('https://api.imgur.com/3/image', {
         method: 'POST',
         headers: {
             'Authorization': `Client-ID ${IMGUR_CLIENT_ID}`
         },
-        body: formData
+        body: formData,
+        signal: controller.signal
     })
-    .then(response => response.json())
+    .then(response => {
+        clearTimeout(timeoutId);
+        if (!response.ok) {
+            // If we get a rate limit error (429) or any other error
+            if (response.status === 429) {
+                console.warn('Imgur rate limit reached, using direct sharing');
+                return Promise.reject(new Error('Rate limit reached'));
+            }
+            return Promise.reject(new Error(`HTTP error ${response.status}`));
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             // Successfully uploaded to Imgur
+            console.log('Successfully uploaded to Imgur:', data.data.link);
             const imageUrl = data.data.link;
             // Now share to Facebook with the image URL
             shareToFacebookWithImage(imageUrl, shareText);
         } else {
             // Handle error
-            hideLoadingOverlay();
-            alert('Failed to upload image. Please try again.');
             console.error('Imgur upload failed:', data);
+            // Fall back to direct sharing
+            shareToFacebookDirect(imageBlob, shareText);
         }
     })
     .catch(error => {
-        hideLoadingOverlay();
-        alert('Failed to upload image. Please try again.');
         console.error('Error uploading to Imgur:', error);
+        // Fall back to direct sharing
+        shareToFacebookDirect(imageBlob, shareText);
     });
 }
 
@@ -1344,6 +1362,59 @@ function shareToFacebookWithImage(imageUrl, shareText) {
 
     // Show the sharing overlay with the image
     showSharingOverlay(imageUrl, shareText, shareUrl);
+}
+
+// Share to Facebook directly with the image blob
+function shareToFacebookDirect(imageBlob, shareText) {
+    console.log('Using direct Facebook sharing with blob');
+    hideLoadingOverlay();
+
+    // Convert the blob to a data URL
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const dataUrl = event.target.result;
+        console.log('Converted blob to data URL');
+
+        // Create a temporary canvas to display the image
+        const tempCanvas = document.createElement('canvas');
+        const tempImg = new Image();
+        tempImg.onload = function() {
+            // Set canvas dimensions to match the image
+            tempCanvas.width = tempImg.width;
+            tempCanvas.height = tempImg.height;
+
+            // Draw the image on the canvas
+            const ctx = tempCanvas.getContext('2d');
+            ctx.drawImage(tempImg, 0, 0);
+
+            // Convert canvas to data URL (this is a different format than the original)
+            const canvasDataUrl = tempCanvas.toDataURL('image/png');
+
+            // Show sharing overlay with the canvas data URL
+            const shareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
+            showSharingOverlay(canvasDataUrl, shareText, shareUrl);
+        };
+
+        tempImg.onerror = function() {
+            console.error('Error loading image from data URL');
+            // Fallback to text-only sharing
+            const shareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
+            directFacebookShare(shareUrl, shareText, null);
+        };
+
+        // Set the source to start loading
+        tempImg.src = dataUrl;
+    };
+
+    reader.onerror = function() {
+        console.error('Error reading blob as data URL');
+        // Fallback to text-only sharing
+        const shareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
+        directFacebookShare(shareUrl, shareText, null);
+    };
+
+    // Start reading the blob
+    reader.readAsDataURL(imageBlob);
 }
 
 // Show sharing overlay with image and options
@@ -1409,9 +1480,15 @@ function directFacebookShare(shareUrl, shareText, imageUrl) {
     console.log('Share text:', shareText);
     console.log('Image URL:', imageUrl);
 
-    // Facebook doesn't allow direct image sharing via URL parameters,
-    // so we'll include the image URL in the text
-    const fullShareText = `${shareText}\n\nCheck out my screenshot: ${imageUrl}`;
+    // Prepare the share text
+    let fullShareText;
+    if (imageUrl) {
+        // Include the image URL in the text if available
+        fullShareText = `${shareText}\n\nCheck out my screenshot: ${imageUrl}`;
+    } else {
+        // Just use the regular share text if no image URL
+        fullShareText = shareText;
+    }
 
     try {
         // Use a timeout to ensure the window opens properly
