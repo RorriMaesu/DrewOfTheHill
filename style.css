@@ -1486,3 +1486,289 @@ h1:hover, h2:hover, h3:hover {
         align-self: center;
     }
 }
+
+/* Buy Me a Coffee Enhanced Styling */
+.bmc-float-button {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 99;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(20px);
+    filter: drop-shadow(0 5px 15px rgba(61, 225, 128, 0.4));
+}
+
+.bmc-float-button.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.bmc-float-button a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.bmc-float-button a::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color), var(--accent-color), var(--primary-color));
+    background-size: 400% 400%;
+    z-index: -1;
+    opacity: 0.7;
+    animation: logoBorder 4s linear infinite;
+}
+
+.bmc-float-button a:hover {
+    transform: translateY(-5px) scale(1.05);
+}
+
+.bmc-float-button img {
+    width: 40px;
+    height: auto;
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.2));
+    transition: transform 0.3s ease;
+}
+
+.bmc-float-button a:hover img {
+    transform: rotate(-5deg);
+}
+
+.bmc-tooltip {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    background: var(--card-color);
+    padding: 8px 15px;
+    border-radius: 20px;
+    color: var(--primary-color);
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(61, 225, 128, 0.3);
+}
+
+.bmc-float-button a:hover .bmc-tooltip {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.bmc-mini-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(61, 225, 128, 0.15), rgba(47, 168, 204, 0.15));
+    transition: all 0.3s ease;
+    position: relative;
+    border: 1px solid rgba(61, 225, 128, 0.3);
+}
+
+.bmc-mini-link::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: radial-gradient(circle, transparent 50%, rgba(61, 225, 128, 0.2) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.bmc-mini-link:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(61, 225, 128, 0.3);
+}
+
+.bmc-mini-link:hover::after {
+    opacity: 1;
+    animation: pulse 1.5s infinite;
+}
+
+.bmc-mini-link img {
+    width: 22px;
+    height: auto;
+    transition: transform 0.3s ease;
+}
+
+.bmc-mini-link:hover img {
+    transform: rotate(-5deg) scale(1.1);
+}
+
+/* Achievement Banner */
+.achievement-banner {
+    display: none;
+    align-items: center;
+    width: 100%;
+    background: linear-gradient(135deg, rgba(61, 225, 128, 0.1), rgba(47, 168, 204, 0.1));
+    border-radius: 12px;
+    margin: 15px 0;
+    padding: 15px;
+    border: 1px solid rgba(61, 225, 128, 0.2);
+    animation: achievementAppear 0.5s forwards;
+    position: relative;
+    overflow: hidden;
+}
+
+.achievement-banner::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        rgba(61, 225, 128, 0.03),
+        rgba(61, 225, 128, 0.03) 10px,
+        rgba(47, 168, 204, 0.03) 10px,
+        rgba(47, 168, 204, 0.03) 20px
+    );
+    pointer-events: none;
+}
+
+.achievement-banner.show {
+    display: flex;
+}
+
+.achievement-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: 50%;
+    margin-right: 15px;
+    flex-shrink: 0;
+    box-shadow: 0 0 15px rgba(61, 225, 128, 0.4);
+}
+
+.achievement-icon i {
+    color: var(--card-darker);
+    font-size: 20px;
+}
+
+.achievement-text {
+    flex: 1;
+}
+
+.achievement-text h4 {
+    margin: 0 0 5px;
+    color: var(--primary-color);
+    font-size: 16px;
+}
+
+.achievement-text p {
+    margin: 0;
+    color: var(--text-light);
+    font-size: 14px;
+}
+
+.achievement-support-btn {
+    display: flex;
+    align-items: center;
+    padding: 8px 15px;
+    background: linear-gradient(135deg, rgba(61, 225, 128, 0.15), rgba(47, 168, 204, 0.15));
+    border-radius: 20px;
+    margin-left: 15px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(61, 225, 128, 0.3);
+}
+
+.achievement-support-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(61, 225, 128, 0.2);
+    background: linear-gradient(135deg, rgba(61, 225, 128, 0.2), rgba(47, 168, 204, 0.2));
+}
+
+.achievement-support-btn img {
+    width: 24px;
+    height: auto;
+    margin-right: 8px;
+}
+
+.achievement-support-btn span {
+    color: var(--primary-color);
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+@keyframes achievementAppear {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive adjustments for BMC elements */
+@media (max-width: 768px) {
+    .bmc-float-button {
+        bottom: 20px;
+        right: 20px;
+    }
+    
+    .achievement-banner {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .achievement-icon {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    
+    .achievement-support-btn {
+        margin-left: 0;
+        margin-top: 12px;
+    }
+    
+    .header-actions {
+        width: 100%;
+        justify-content: center;
+        margin-top: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .bmc-float-button {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .bmc-float-button img {
+        width: 30px;
+    }
+}

@@ -787,3 +787,162 @@ function generateActivityParticipant() {
         console.error("Error checking for existing participant or high scores:", error);
     });
 }
+
+// --- Buy Me a Coffee Strategic Marketing Functions ---
+
+// Track user interactions for optimal Buy Me a Coffee timing
+let interactionCount = 0;
+let lastAchievementShown = 0;
+let bmcElementsInitialized = false;
+
+function initBuyMeCoffeeElements() {
+    if (bmcElementsInitialized) return;
+    
+    // Set up floating button behavior
+    const floatButton = document.querySelector('.bmc-float-button');
+    if (floatButton) {
+        // Initially hidden
+        setTimeout(() => {
+            floatButton.classList.add('visible');
+        }, 40000); // Show after 40 seconds of engagement
+    }
+    
+    // Set up achievement banner behavior
+    const achievementBanner = document.getElementById('achievement-banner');
+    if (achievementBanner) {
+        // Initially hidden - will be shown on significant events
+    }
+    
+    // Add interaction counting for psychological timing
+    document.addEventListener('click', incrementInteractionCount);
+    
+    // Set initial state
+    bmcElementsInitialized = true;
+    console.log("Buy Me a Coffee elements initialized");
+}
+
+function incrementInteractionCount(e) {
+    // Only count meaningful interactions
+    const clickedElement = e.target;
+    const isButton = clickedElement.tagName === 'BUTTON' || 
+                     clickedElement.closest('button') || 
+                     clickedElement.tagName === 'A' ||
+                     clickedElement.closest('a');
+    
+    if (isButton) {
+        interactionCount++;
+        
+        // After sufficient interactions, show achievement with BMC
+        if (interactionCount >= 3 && interactionCount % 3 === 0) {
+            const now = Date.now();
+            // Don't show achievements too frequently
+            if (now - lastAchievementShown > 60000) { // At least 1 minute between achievements
+                showAchievementBanner();
+                lastAchievementShown = now;
+            }
+        }
+    }
+}
+
+function showAchievementBanner() {
+    const banner = document.getElementById('achievement-banner');
+    if (!banner) return;
+    
+    // Add some variety to achievement messages
+    const achievements = [
+        {
+            title: "Interdimensional Explorer!",
+            message: "Your journey through the multiverse continues!"
+        },
+        {
+            title: "Council Recognition!",
+            message: "The Council of Andrew acknowledges your dedication."
+        },
+        {
+            title: "Multiversal Progress!",
+            message: "You're making waves across dimensions."
+        }
+    ];
+    
+    // Select a random achievement
+    const achievement = achievements[Math.floor(Math.random() * achievements.length)];
+    
+    // Update achievement text
+    const titleElement = banner.querySelector('h4');
+    const messageElement = banner.querySelector('p');
+    
+    if (titleElement) titleElement.textContent = achievement.title;
+    if (messageElement) messageElement.textContent = achievement.message;
+    
+    // Show the banner
+    banner.classList.add('show');
+    
+    // Hide after 12 seconds
+    setTimeout(() => {
+        banner.classList.remove('show');
+    }, 12000);
+}
+
+// Add this function to the hill button click for psychological timing
+function handleSuccessfulHillClaim() {
+    // Show achievement with BMC prompt when a user successfully claims the hill
+    if (yourDesignation === currentDrewOnHill) {
+        // Small delay for better psychological impact - after success recognition
+        setTimeout(() => {
+            showAchievementBanner();
+            lastAchievementShown = Date.now();
+        }, 2000);
+    }
+}
+
+// Modify the existing handleHillClick function to call our new function
+const originalHandleHillClick = handleHillClick;
+handleHillClick = function() {
+    // Call original function
+    originalHandleHillClick.apply(this, arguments);
+    
+    // Add our enhancement (will only trigger if claim was successful)
+    setTimeout(() => {
+        if (yourDesignation === currentDrewOnHill) {
+            handleSuccessfulHillClaim();
+        }
+    }, 1500); // Give time for Firebase to update
+};
+
+// Add to the initialization
+const originalInitApp = initApp;
+initApp = function() {
+    // Call original function
+    originalInitApp.apply(this, arguments);
+    
+    // Initialize our Buy Me a Coffee elements
+    initBuyMeCoffeeElements();
+};
+
+// Add scroll depth tracking for floating button visibility
+window.addEventListener('scroll', function() {
+    // Get scroll position
+    const scrollPosition = window.scrollY || document.documentElement.scrollTop;
+    const pageHeight = document.documentElement.scrollHeight;
+    const windowHeight = window.innerHeight;
+    const scrollPercentage = (scrollPosition / (pageHeight - windowHeight)) * 100;
+    
+    // Show floating button when user has scrolled down at least 25%
+    const floatButton = document.querySelector('.bmc-float-button');
+    if (floatButton && scrollPercentage > 25) {
+        floatButton.classList.add('visible');
+    }
+});
+
+// Add exit intent detection for a final prompt opportunity
+document.addEventListener('mouseleave', function(e) {
+    // Only trigger when mouse leaves the top of the page
+    if (e.clientY < 5 && interactionCount > 2) {
+        const now = Date.now();
+        // Show only once every 5 minutes at most
+        if (now - lastAchievementShown > 300000) {
+            showAchievementBanner();
+            lastAchievementShown = now;
+        }
+    }
+});
