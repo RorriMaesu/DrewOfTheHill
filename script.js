@@ -1022,9 +1022,17 @@ function downloadScreenshot() {
 }
 
 // Share to Facebook
-function shareToFacebook() {
+function shareToFacebook(elementId, shareType) {
+    // If elementId and shareType are provided, capture the screenshot first
+    if (elementId && shareType) {
+        captureScreenshotAndShare(elementId, shareType);
+        return;
+    }
+
+    // Otherwise, use the existing screenshot if available
     if (!currentScreenshot) {
-        alert('No screenshot available to share');
+        console.error('No screenshot available to share');
+        alert('Unable to prepare image for sharing. Please try again.');
         return;
     }
 
@@ -1039,6 +1047,96 @@ function shareToFacebook() {
         // Upload to Imgur
         uploadToImgur(blob, shareText);
     }, 'image/png');
+}
+
+// Capture screenshot and then share
+function captureScreenshotAndShare(elementId, shareType) {
+    const element = document.getElementById(elementId);
+    if (!element) {
+        console.error(`Element with ID ${elementId} not found`);
+        alert('Unable to prepare image for sharing. Please try again.');
+        return;
+    }
+
+    // Show loading overlay
+    showLoadingOverlay('Capturing screenshot...');
+
+    // Store the share type for later use
+    currentShareType = shareType;
+
+    // Create a wrapper for better capture
+    const wrapper = document.createElement('div');
+    wrapper.className = 'screenshot-wrapper';
+    wrapper.style.position = 'fixed';
+    wrapper.style.left = '-9999px';
+    wrapper.style.top = '0';
+    wrapper.style.width = element.offsetWidth + 'px';
+    wrapper.style.backgroundColor = '#1a2539';
+    wrapper.style.padding = '20px';
+    wrapper.style.borderRadius = '12px';
+    wrapper.style.zIndex = '-1';
+
+    // Clone the element for capturing
+    const clone = element.cloneNode(true);
+
+    // Add title based on share type
+    const titleElement = document.createElement('h3');
+    titleElement.style.color = '#3de180';
+    titleElement.style.marginBottom = '15px';
+    titleElement.style.textAlign = 'center';
+    titleElement.style.fontFamily = 'Montserrat, sans-serif';
+
+    switch(shareType) {
+        case 'achievement':
+            titleElement.textContent = 'Achievement Unlocked!';
+            break;
+        case 'stats':
+            titleElement.textContent = 'My Drew of the Hill Stats';
+            break;
+        case 'current-status':
+            titleElement.textContent = 'Current Drew Status';
+            break;
+        case 'total-leaderboard':
+            titleElement.textContent = 'Total Time Leaderboard';
+            break;
+        case 'reign-leaderboard':
+            titleElement.textContent = 'Longest Reigns Leaderboard';
+            break;
+        default:
+            titleElement.textContent = 'Drew of the Hill';
+    }
+
+    wrapper.appendChild(titleElement);
+    wrapper.appendChild(clone);
+    document.body.appendChild(wrapper);
+
+    // Use html2canvas to capture the wrapper
+    html2canvas(wrapper, {
+        backgroundColor: '#1a2539',
+        scale: 2, // Higher resolution
+        logging: false,
+        allowTaint: true,
+        useCORS: true,
+        width: wrapper.offsetWidth,
+        height: wrapper.offsetHeight
+    }).then(canvas => {
+        // Remove the wrapper
+        document.body.removeChild(wrapper);
+
+        // Store the canvas data
+        currentScreenshot = canvas;
+
+        // Add game branding to the canvas
+        addBranding(canvas);
+
+        // Now share to Facebook
+        shareToFacebook();
+    }).catch(error => {
+        console.error('Error capturing screenshot:', error);
+        document.body.removeChild(wrapper);
+        hideLoadingOverlay();
+        alert('Failed to capture screenshot. Please try again.');
+    });
 }
 
 // Show loading overlay
