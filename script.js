@@ -1485,7 +1485,24 @@ function directFacebookShare(shareUrl, shareText, imageUrl) {
 
     if (imageUrl) {
         // Use our custom share page with the image and text as parameters
-        const baseShareUrl = window.location.origin + window.location.pathname.replace('index.html', '') + 'share.html';
+        let baseShareUrl;
+
+        // Check if we're running from a file:// URL or a web server
+        if (window.location.protocol === 'file:') {
+            // When running locally, use the GitHub Pages URL
+            baseShareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/share.html';
+        } else {
+            // When running on a web server, construct the URL properly
+            const pathParts = window.location.pathname.split('/');
+            const lastPart = pathParts[pathParts.length - 1];
+            const basePath = lastPart === 'index.html' || lastPart === '' ?
+                window.location.pathname.replace(/index\.html$|\/$/, '') :
+                window.location.pathname;
+
+            baseShareUrl = window.location.origin + basePath + '/share.html';
+        }
+
+        // Construct the full URL with parameters
         sharePageUrl = `${baseShareUrl}?img=${encodeURIComponent(imageUrl)}&text=${encodeURIComponent(shareText)}`;
         console.log('Generated share page URL:', sharePageUrl);
     } else {
