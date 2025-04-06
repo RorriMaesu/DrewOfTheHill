@@ -1262,12 +1262,14 @@ h1:hover, h2:hover, h3:hover {
     justify-content: space-between;
     margin-bottom: 20px;
     padding: 15px 0;
+    flex-wrap: wrap;
 }
 
 .logo-title-container {
     display: flex;
     align-items: center;
-    width: 100%;
+    flex: 1;
+    min-width: 300px;
 }
 
 .title-container {
@@ -1468,10 +1470,14 @@ h1:hover, h2:hover, h3:hover {
     background: rgba(61, 225, 128, 0.1);
     border: 1px solid rgba(61, 225, 128, 0.2);
     color: var(--primary-color);
+    white-space: nowrap;
+    min-width: auto;
+    box-shadow: 0 5px 15px rgba(61, 225, 128, 0.2);
 }
 
 .btn-small:hover {
     background: rgba(61, 225, 128, 0.2);
+    transform: translateY(-3px);
 }
 
 /* Modal for Manifesto */
@@ -1545,12 +1551,14 @@ h1:hover, h2:hover, h3:hover {
 
     .app-header {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
+        gap: 15px;
     }
 
-    .app-header button {
-        margin-top: 15px;
-        align-self: flex-end;
+    .header-actions {
+        margin-top: 10px;
+        width: 100%;
+        justify-content: center;
     }
 
     .logo-title-container {
@@ -1581,8 +1589,13 @@ h1:hover, h2:hover, h3:hover {
         overflow-x: auto;
     }
 
-    .app-header button {
-        align-self: center;
+    .header-actions {
+        gap: 10px;
+    }
+
+    .btn-small {
+        padding: 8px 12px;
+        font-size: 0.8rem;
     }
 }
 
@@ -1675,7 +1688,10 @@ h1:hover, h2:hover, h3:hover {
 .header-actions {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: 15px;
+    flex-wrap: nowrap;
+    margin-left: auto;
 }
 
 .bmc-mini-link {
@@ -1942,11 +1958,13 @@ h1:hover, h2:hover, h3:hover {
     background: linear-gradient(135deg, #3b5998, #2d4373);
     border: 1px solid rgba(59, 89, 152, 0.2);
     color: white;
+    box-shadow: 0 5px 15px rgba(59, 89, 152, 0.3);
 }
 
 .btn-facebook:hover {
     background: linear-gradient(135deg, #4c70ba, #3b5998);
-    box-shadow: 0 0 25px rgba(59, 89, 152, 0.5);
+    box-shadow: 0 8px 20px rgba(59, 89, 152, 0.5);
+    transform: translateY(-3px);
 }
 
 .btn-facebook .btn-icon {
