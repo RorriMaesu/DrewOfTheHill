@@ -18,6 +18,13 @@
     <!-- Add Rick and Morty style font -->
     <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+
+    <!-- Facebook SDK for sharing -->
+    <meta property="og:url" content="https://rorrimaesu.github.io/DrewOfTheHill/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Drew of the Hill - Council of Andrew" />
+    <meta property="og:description" content="A prestigious interdimensional game for the Council of Andrew across the multiverse" />
+    <meta property="og:image" content="https://rorrimaesu.github.io/DrewOfTheHill/coaLogo.png" />
 </head>
 <body>
     <div class="portal-background">
@@ -113,6 +120,12 @@
                             <div class="achievement-text">
                                 <h4>Achievement Unlocked!</h4>
                                 <p>You're on your way to multiversal dominance.</p>
+                                <div class="share-container">
+                                    <span class="share-label">Share:</span>
+                                    <button class="share-btn" onclick="shareAchievement()">
+                                        <i class="fab fa-facebook-f"></i> Share Achievement
+                                    </button>
+                                </div>
                             </div>
                             <a href="https://buymeacoffee.com/rorrimaesu" target="_blank" class="achievement-support-btn">
                                 <img src="capitalismsucksbutiamsuperpassionateaboutbeingabletoaffordfood.png" alt="Support">
@@ -129,6 +142,12 @@
                                 <div class="status-label">Dimension Dominance</div>
                                 <div class="status-value" id="current-reign-time">0s</div>
                             </div>
+                        </div>
+                        <div class="share-container">
+                            <span class="share-label">Share current status:</span>
+                            <button class="share-btn" onclick="shareCurrentStatus()">
+                                <i class="fab fa-facebook-f"></i> Share Status
+                            </button>
                         </div>
                     </div>
                 </section>
@@ -163,6 +182,12 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="share-container">
+                            <span class="share-label">Share your stats:</span>
+                            <button class="share-btn" onclick="shareStats()">
+                                <i class="fab fa-facebook-f"></i> Share Stats
+                            </button>
+                        </div>
                     </div>
                 </section>
 
@@ -190,11 +215,23 @@
                             <div class="tab-content active" id="cumulative-leaderboard">
                                 <h3><i class="fas fa-clock"></i> Top Drews (Total Time)</h3>
                                 <ol id="cumulative-list" class="leaderboard-list"></ol>
+                                <div class="share-container">
+                                    <span class="share-label">Share leaderboard:</span>
+                                    <button class="share-btn" onclick="shareLeaderboard('total')">
+                                        <i class="fab fa-facebook-f"></i> Share
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="tab-content" id="reign-leaderboard">
                                 <h3><i class="fas fa-crown"></i> Longest Reigns</h3>
                                 <ol id="reign-list" class="leaderboard-list"></ol>
+                                <div class="share-container">
+                                    <span class="share-label">Share leaderboard:</span>
+                                    <button class="share-btn" onclick="shareLeaderboard('reign')">
+                                        <i class="fab fa-facebook-f"></i> Share
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -220,6 +257,10 @@
     <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <!-- Facebook SDK for sharing -->
+    <div id="fb-root"></div>
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v18.0" nonce="random123"></script>
 
     <!-- Main Script -->
     <script src="script.js"></script>

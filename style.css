@@ -2052,3 +2052,56 @@ h1:hover, h2:hover, h3:hover {
         align-items: center;
     }
 }
+
+/* Share Button Styling */
+.share-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    background: rgba(59, 89, 152, 0.1);
+    border: 1px solid rgba(59, 89, 152, 0.2);
+    border-radius: 20px;
+    color: #3b5998;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.share-btn:hover {
+    background: rgba(59, 89, 152, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(59, 89, 152, 0.2);
+}
+
+.share-btn i {
+    margin-right: 5px;
+}
+
+.share-container {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.share-label {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-right: 5px;
+}
+
+@media (max-width: 480px) {
+    .share-btn {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+    }
+
+    .share-container {
+        justify-content: center;
+        width: 100%;
+    }
+}

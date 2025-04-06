@@ -852,6 +852,60 @@ function generateActivityParticipant() {
     });
 }
 
+// --- Social Sharing Functions ---
+
+function shareAchievement() {
+    const achievementTitle = document.querySelector('#achievement-banner h4').textContent;
+    const achievementMessage = document.querySelector('#achievement-banner p').textContent;
+
+    const shareText = `I just unlocked "${achievementTitle}" in Drew of the Hill! ${achievementMessage}`;
+    const shareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
+
+    // Open Facebook share dialog
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`, '_blank');
+}
+
+function shareStats() {
+    const designation = document.getElementById('your-designation-display').textContent;
+    const totalTime = document.getElementById('your-total-time').textContent;
+    const longestReign = document.getElementById('your-longest-reign').textContent;
+
+    const shareText = `I, ${designation}, have been the One True Drew for a total of ${totalTime} with my longest reign being ${longestReign}! Can you beat my record in Drew of the Hill?`;
+    const shareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
+
+    // Open Facebook share dialog
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`, '_blank');
+}
+
+function shareLeaderboard(type) {
+    let leaderboardType = type === 'total' ? 'Total Time' : 'Longest Reigns';
+    let leaderboardList = type === 'total' ? document.getElementById('cumulative-list') : document.getElementById('reign-list');
+
+    // Get top 3 entries
+    let topEntries = [];
+    const listItems = leaderboardList.querySelectorAll('li');
+    for (let i = 0; i < Math.min(3, listItems.length); i++) {
+        topEntries.push(listItems[i].textContent);
+    }
+
+    const shareText = `Check out the Drew of the Hill ${leaderboardType} leaderboard!\n\nTop 3:\n1. ${topEntries[0] || 'No entries yet'}\n2. ${topEntries[1] || 'No entries yet'}\n3. ${topEntries[2] || 'No entries yet'}`;
+    const shareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
+
+    // Open Facebook share dialog
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`, '_blank');
+}
+
+function shareCurrentStatus() {
+    const currentDrew = document.getElementById('current-drew').textContent;
+    const reignTime = document.getElementById('current-reign-time').textContent;
+
+    const shareText = `${currentDrew} is currently the One True Drew with a reign time of ${reignTime}! Will you be the next to claim the hill?`;
+    const shareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
+
+    // Open Facebook share dialog
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`, '_blank');
+}
+
 // --- Buy Me a Coffee Strategic Marketing Functions ---
 
 // Track user interactions for optimal Buy Me a Coffee timing
