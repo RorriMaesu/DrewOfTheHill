@@ -1450,13 +1450,39 @@ function uploadToImgur(imageBlob, shareText) {
 
 // Share to Facebook with image URL
 function shareToFacebookWithImage(imageUrl, shareText) {
+    console.log('Sharing to Facebook with image URL:', imageUrl);
     hideLoadingOverlay();
 
-    // Create a more user-friendly sharing experience
+    // Use our simplified approach
+    // 1. Share the main URL to Facebook
+    // 2. Show the image in our custom overlay
+
+    // Main URL to share
     const shareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
 
-    // Show the sharing overlay with the image
-    showSharingOverlay(imageUrl, shareText, shareUrl);
+    // First, initiate the Facebook share
+    try {
+        // Create a simple share dialog URL
+        const fbShareUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl);
+
+        console.log('Opening Facebook share window with URL:', fbShareUrl);
+
+        // Open the share window with a delay to ensure it works properly
+        setTimeout(() => {
+            const fbShareWindow = window.open(fbShareUrl, '_blank', 'width=600,height=400');
+
+            if (!fbShareWindow || fbShareWindow.closed || typeof fbShareWindow.closed === 'undefined') {
+                // Popup was blocked
+                console.warn('Facebook share window was blocked');
+                alert('The Facebook share window was blocked by your browser. Please allow popups for this site.');
+            }
+        }, 100);
+    } catch (error) {
+        console.error('Error opening Facebook share window:', error);
+    }
+
+    // Then, show the image in our custom overlay
+    showSimpleSharingOverlay(imageUrl, shareText);
 }
 
 // Share to Facebook directly with the image blob
