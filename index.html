@@ -288,6 +288,19 @@
 
     <!-- html2canvas for screenshot sharing -->
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        // Check if html2canvas loaded properly
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                if (typeof html2canvas !== 'function') {
+                    console.error('html2canvas failed to load properly');
+                    alert('Some sharing features may not work properly. Please refresh the page.');
+                } else {
+                    console.log('html2canvas loaded successfully');
+                }
+            }, 1000);
+        });
+    </script>
 
     <!-- FileSaver.js for saving screenshots -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>

@@ -1023,15 +1023,21 @@ function downloadScreenshot() {
 
 // Share to Facebook
 function shareToFacebook(elementId, shareType) {
+    console.log(`shareToFacebook called with elementId: ${elementId}, shareType: ${shareType}`);
+    console.log(`Current screenshot status: ${currentScreenshot ? 'Available' : 'Not available'}`);
+    console.log(`Current share type: ${currentShareType}`);
+
     // If elementId and shareType are provided, capture the screenshot first
     if (elementId && shareType) {
+        console.log('Calling captureScreenshotAndShare with provided parameters');
         captureScreenshotAndShare(elementId, shareType);
         return;
     }
 
     // Otherwise, use the existing screenshot if available
     if (!currentScreenshot) {
-        console.error('No screenshot available to share');
+        console.error('No screenshot available to share - currentScreenshot is null or undefined');
+        console.error('This may happen if the screenshot capture process failed or was interrupted');
         alert('Unable to prepare image for sharing. Please try again.');
         return;
     }
@@ -1138,6 +1144,21 @@ function captureScreenshotAndShare(elementId, shareType) {
         wrapper.offsetHeight;
 
         // Use html2canvas to capture the wrapper
+        console.log('Starting html2canvas capture with wrapper dimensions:', wrapper.offsetWidth, 'x', wrapper.offsetHeight);
+        console.log('Wrapper content:', wrapper.innerHTML.substring(0, 100) + '...');
+
+        // Check if html2canvas is available again right before using it
+        if (typeof html2canvas !== 'function') {
+            console.error('html2canvas is not available at capture time!');
+            document.body.removeChild(wrapper);
+            hideLoadingOverlay();
+            alert('Sharing functionality is not fully loaded. Please refresh the page and try again.');
+            return;
+        }
+
+        // Create a global variable to track if the promise resolves
+        window.capturePromiseResolved = false;
+
         html2canvas(wrapper, {
             backgroundColor: '#1a2539',
             scale: 2, // Higher resolution
@@ -1148,28 +1169,53 @@ function captureScreenshotAndShare(elementId, shareType) {
             height: wrapper.offsetHeight,
             onclone: function(clonedDoc) {
                 console.log('Document cloned for html2canvas');
+                console.log('Cloned wrapper dimensions:', clonedDoc.querySelector('.screenshot-wrapper').offsetWidth, 'x',
+                            clonedDoc.querySelector('.screenshot-wrapper').offsetHeight);
             }
         }).then(canvas => {
             console.log('Screenshot captured successfully');
+            console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
+            window.capturePromiseResolved = true;
+
             // Remove the wrapper
-            document.body.removeChild(wrapper);
+            if (document.body.contains(wrapper)) {
+                document.body.removeChild(wrapper);
+            }
 
             // Store the canvas data
             currentScreenshot = canvas;
+            console.log('currentScreenshot set to canvas object');
 
             // Add game branding to the canvas
             addBranding(canvas);
+            console.log('Branding added to canvas');
 
             // Now share to Facebook
+            console.log('Calling shareToFacebook() with no parameters');
             shareToFacebook();
         }).catch(error => {
             console.error('Error capturing screenshot:', error);
+            console.error('Error details:', error.message, error.stack);
+            window.capturePromiseResolved = true;
+
             if (document.body.contains(wrapper)) {
                 document.body.removeChild(wrapper);
             }
             hideLoadingOverlay();
-            alert('Failed to capture screenshot. Please try again.');
+            alert('Failed to capture screenshot. Please try again. Error: ' + error.message);
         });
+
+        // Set a timeout to check if the promise resolved
+        setTimeout(() => {
+            if (!window.capturePromiseResolved) {
+                console.error('html2canvas promise did not resolve within timeout period');
+                if (document.body.contains(wrapper)) {
+                    document.body.removeChild(wrapper);
+                }
+                hideLoadingOverlay();
+                alert('Screenshot capture timed out. Please try again.');
+            }
+        }, 15000); // 15 second timeout
     } catch (error) {
         console.error('Error in screenshot preparation:', error);
         if (document.body.contains(wrapper)) {
