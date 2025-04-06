@@ -1272,20 +1272,21 @@ function captureScreenshotAndShare(elementId, shareType) {
 
         // Function to capture with html2canvas
         function captureWithHtml2Canvas() {
-            html2canvas(wrapper, {
-                backgroundColor: '#1a2539',
-                scale: 2, // Higher resolution
-                logging: true, // Enable logging for debugging
-                allowTaint: true,
-                useCORS: true,
-                width: wrapper.offsetWidth,
-                height: wrapper.offsetHeight,
-                onclone: function(clonedDoc) {
-                    console.log('Document cloned for html2canvas');
-                    console.log('Cloned wrapper dimensions:', clonedDoc.querySelector('.screenshot-wrapper').offsetWidth, 'x',
-                                clonedDoc.querySelector('.screenshot-wrapper').offsetHeight);
-                }
-            }).then(canvas => {
+            try {
+                html2canvas(wrapper, {
+                    backgroundColor: '#1a2539',
+                    scale: 2, // Higher resolution
+                    logging: true, // Enable logging for debugging
+                    allowTaint: true,
+                    useCORS: true,
+                    width: wrapper.offsetWidth,
+                    height: wrapper.offsetHeight,
+                    onclone: function(clonedDoc) {
+                        console.log('Document cloned for html2canvas');
+                        console.log('Cloned wrapper dimensions:', clonedDoc.querySelector('.screenshot-wrapper').offsetWidth, 'x',
+                                    clonedDoc.querySelector('.screenshot-wrapper').offsetHeight);
+                    }
+                }).then(canvas => {
             console.log('Screenshot captured successfully');
             console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
             window.capturePromiseResolved = true;
@@ -1340,6 +1341,15 @@ function captureScreenshotAndShare(elementId, shareType) {
                 alert('Screenshot capture timed out. Please try again.');
             }
         }, 15000); // 15 second timeout
+            } catch (innerError) {
+                console.error('Error in html2canvas execution:', innerError);
+                if (document.body.contains(wrapper)) {
+                    document.body.removeChild(wrapper);
+                }
+                hideLoadingOverlay();
+                alert('Error capturing screenshot. Please try again.');
+            }
+        }
     } catch (error) {
         console.error('Error in screenshot preparation:', error);
         if (document.body.contains(wrapper)) {
