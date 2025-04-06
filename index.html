@@ -24,22 +24,23 @@
         <div class="portal portal1"></div>
         <div class="portal portal2"></div>
         <div class="portal portal3"></div>
+        <div class="portal portal4"></div>
     </div>
 
     <div class="page-container">
         <!-- Removed floating button that was blocking content -->
-        
-        <div class="app-header">
+
+        <div class="app-header" data-aos="fade-down" data-aos-duration="1000">
             <div class="logo-title-container">
-                <div class="logo-image">
+                <div class="logo-image" data-aos="zoom-in" data-aos-delay="300">
                     <img src="coaLogo.png" alt="Council of Andrew Logo">
                 </div>
-                <div class="title-container">
+                <div class="title-container" data-aos="fade-right" data-aos-delay="500">
                     <h1>Drew of the Hill</h1>
                     <p class="tagline">A prestigious interdimensional game for the Council of Andrew across the multiverse</p>
                 </div>
             </div>
-            
+
             <div class="header-actions">
                 <a href="https://www.facebook.com/groups/councilofandrew/" target="_blank" class="btn btn-facebook btn-small">
                     <span class="btn-text">Join The Council</span>
@@ -71,7 +72,7 @@
 
         <main class="dashboard-layout">
             <div class="control-panel">
-                <section class="card designation-setup">
+                <section class="card designation-setup" data-aos="fade-up" data-aos-duration="800">
                     <div class="card-header">
                         <div class="icon-wrapper">
                             <i class="fas fa-dna"></i>
@@ -93,7 +94,7 @@
                     </div>
                 </section>
 
-                <section id="game-area" class="card">
+                <section id="game-area" class="card" data-aos="fade-up" data-aos-duration="800" data-aos-delay="200">
                     <div class="card-header">
                         <div class="icon-wrapper">
                             <i class="fas fa-globe"></i>
@@ -165,14 +166,14 @@
                     </div>
                 </section>
 
-                <div class="support-banner">
+                <div class="support-banner" data-aos="fade-up" data-aos-duration="800" data-aos-delay="300">
                     <a href="https://buymeacoffee.com/rorrimaesu" target="_blank" class="bmc-link" title="Buy me a coffee to support interdimensional research">
                         <img src="capitalismsucksbutiamsuperpassionateaboutbeingabletoaffordfood.png" alt="Buy Me A Coffee" class="bmc-image">
                         <span class="bmc-text">Fuel Interdimensional Research</span>
                     </a>
                 </div>
 
-                <section id="leaderboards" class="card">
+                <section id="leaderboards" class="card" data-aos="fade-up" data-aos-duration="800" data-aos-delay="400">
                     <div class="card-header">
                         <div class="icon-wrapper">
                             <i class="fas fa-medal"></i>
@@ -185,12 +186,12 @@
                                 <button class="tab-btn active" data-target="cumulative-leaderboard">Total Time</button>
                                 <button class="tab-btn" data-target="reign-leaderboard">Longest Reigns</button>
                             </div>
-                            
+
                             <div class="tab-content active" id="cumulative-leaderboard">
                                 <h3><i class="fas fa-clock"></i> Top Drews (Total Time)</h3>
                                 <ol id="cumulative-list" class="leaderboard-list"></ol>
                             </div>
-                            
+
                             <div class="tab-content" id="reign-leaderboard">
                                 <h3><i class="fas fa-crown"></i> Longest Reigns</h3>
                                 <ol id="reign-list" class="leaderboard-list"></ol>

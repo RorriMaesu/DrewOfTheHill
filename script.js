@@ -46,11 +46,11 @@ let reignTimerId = null; // To hold the interval timer
 let lastActivityTimestamp = null;
 const INACTIVITY_THRESHOLD_BASE = 12 * 60 * 60 * 1000; // 12 hours in milliseconds as a base
 const BOT_NAMES = [
-  "Drew C-137", "Andy B-612", "Andrew X-99", 
-  "Drew Sanchez", "Andy Smith", "Andrew Quantum", 
+  "Drew C-137", "Andy B-612", "Andrew X-99",
+  "Drew Sanchez", "Andy Smith", "Andrew Quantum",
   "Drew Morty", "Dimensional Drew", "Council Drew Prime",
   "Interdimensional Andy", "Drew the Wise", "Citadel Andrew",
-  "A-23 Drew", "Andy the Infinite", "A. Rickdrewski", "Drew-209", 
+  "A-23 Drew", "Andy the Infinite", "A. Rickdrewski", "Drew-209",
   "Citadel Guardian Drew", "Portal Drew", "Drew of Dimension Q",
   "Variant Andrew", "Multiverse Andy", "Andy Timewalker"
 ];
@@ -434,19 +434,22 @@ function initApp() {
     // Initialize AOS (Animate on Scroll) library
     if (typeof AOS !== 'undefined') {
         AOS.init({
-            duration: 800,
-            easing: 'ease-in-out',
+            duration: 1000,
+            easing: 'ease-out',
             once: false,
-            mirror: false
+            mirror: true,
+            offset: 50,
+            delay: 100,
+            anchorPlacement: 'top-bottom'
         });
     } else {
         console.warn('AOS library not loaded. Some animations may not work.');
     }
-    
+
     // Initialize UI components for the new layout
     setupManifestoModal();
     setupLeaderboardTabs();
-    
+
     // Load designation from local storage
     const savedDesignation = localStorage.getItem('playerDesignation');
     if (savedDesignation && isValidDesignation(savedDesignation)) { // Check validity on load
@@ -473,7 +476,7 @@ function initApp() {
     // Setup Firebase listeners (if db initialized correctly)
     if (db) {
         setupFirebaseListeners();
-        
+
         // Check for inactivity and potentially enhance engagement
         setTimeout(() => {
             checkEngagementAndAddActivity();
@@ -505,18 +508,18 @@ function setupManifestoModal() {
     const modal = document.getElementById('manifesto-modal');
     const btn = document.getElementById('manifesto-toggle');
     const closeBtn = document.querySelector('.close-modal');
-    
+
     if (btn && modal && closeBtn) {
         btn.addEventListener('click', function() {
             modal.style.display = "block";
             document.body.style.overflow = "hidden"; // Prevent scrolling behind modal
         });
-        
+
         closeBtn.addEventListener('click', function() {
             modal.style.display = "none";
             document.body.style.overflow = "auto"; // Re-enable scrolling
         });
-        
+
         window.addEventListener('click', function(event) {
             if (event.target === modal) {
                 modal.style.display = "none";
@@ -530,17 +533,17 @@ function setupManifestoModal() {
 function setupLeaderboardTabs() {
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
-    
+
     if (tabBtns.length > 0) {
         tabBtns.forEach(btn => {
             btn.addEventListener('click', function() {
                 // Remove active class from all buttons and tab contents
                 tabBtns.forEach(b => b.classList.remove('active'));
                 tabContents.forEach(c => c.classList.remove('active'));
-                
+
                 // Add active class to clicked button
                 this.classList.add('active');
-                
+
                 // Show the corresponding tab content
                 const targetId = this.getAttribute('data-target');
                 const targetContent = document.getElementById(targetId);
@@ -571,44 +574,44 @@ if (document.readyState === 'loading') { // Loading hasn't finished yet
 function checkEngagementAndAddActivity() {
     // Only proceed if Firebase is initialized
     if (!db) return;
-    
+
     // First, check the last claim timestamp to determine activity
     const gameStateRef = db.ref('/drewOfTheHill/gameState');
     const playersRef = db.ref('/drewOfTheHill/players');
-    
+
     gameStateRef.once('value')
     .then((snapshot) => {
         const gameState = snapshot.val();
         const now = Date.now();
         let lastActivity = null;
-        
+
         // Check if we have a current claim and its timestamp
         if (gameState && gameState.claimTimestamp) {
             lastActivity = gameState.claimTimestamp;
         }
-        
+
         // Apply randomness to the inactivity threshold (10-14 hours)
         const randomFactor = 0.8 + (Math.random() * 0.4); // Random factor between 0.8 and 1.2
         const INACTIVITY_THRESHOLD = INACTIVITY_THRESHOLD_BASE * randomFactor;
-        
+
         // Random chance to skip checking even if criteria met (10% chance)
         if (Math.random() < 0.1) {
             console.log("Random check skipped for system variety");
             return;
         }
-        
+
         // Check last activity timestamp to avoid adding activity too frequently
         if (lastActivityTimestamp) {
             // Variable cooldown period with randomness (3-6 hours)
             const hourVariance = 3 + (Math.random() * 3);
             const cooldownPeriod = hourVariance * 60 * 60 * 1000;
-            
+
             if (now - lastActivityTimestamp < cooldownPeriod) {
                 console.log(`Recent activity detected (${formatTime(now - lastActivityTimestamp)} ago), normal operation`);
                 return;
             }
         }
-        
+
         // If no claim or claim is older than threshold, consider creating engagement
         if (!lastActivity || (now - lastActivity > INACTIVITY_THRESHOLD)) {
             // Even when eligible, only add activity 85% of the time to create unpredictability
@@ -633,7 +636,7 @@ function getRandomInt(min, max) {
 
 function generateActivityParticipant() {
     if (!db) return;
-    
+
     // Get available participant names that haven't been used recently
     let availableNames = BOT_NAMES.filter(name => !recentlyUsedBotNames.includes(name));
     // If we've used all names, reset and use any name
@@ -644,49 +647,49 @@ function generateActivityParticipant() {
             recentlyUsedBotNames.length = 0;
         }
     }
-    
+
     // Pick a random name from available ones
     const participantName = availableNames[Math.floor(Math.random() * availableNames.length)];
-    
+
     // Add to recently used list
     recentlyUsedBotNames.push(participantName);
     // Keep list at maximum size
     if (recentlyUsedBotNames.length > MAX_RECENT_BOTS) {
         recentlyUsedBotNames.shift(); // Remove oldest name
     }
-    
+
     console.log(`New participant joining: ${participantName}`);
-    
+
     // Generate realistic stats with additional randomness
     const timeOfDay = new Date().getHours();
     let baseReign;
-    
+
     // Vary reign times based on time of day - simulating realistic behavior patterns
     if (timeOfDay >= 1 && timeOfDay <= 5) {
         // Late night/early morning - longer reigns (less competition)
         baseReign = getRandomInt(2 * 60 * 1000, 25 * 60 * 1000);
     } else if (timeOfDay >= 9 && timeOfDay <= 17) {
         // Business hours - shorter reigns (more competition)
-        baseReign = getRandomInt(20 * 1000, 8 * 60 * 1000); 
+        baseReign = getRandomInt(20 * 1000, 8 * 60 * 1000);
     } else {
         // Evening/other times - medium reigns
         baseReign = getRandomInt(45 * 1000, 15 * 60 * 1000);
     }
-    
+
     // Add some randomness to prevent patterns
     const randomMultiplier = 0.7 + (Math.random() * 0.6); // 0.7 to 1.3
     const reignDuration = Math.floor(baseReign * randomMultiplier);
-    
+
     // Total time should be more than longest reign for realism
     // Create a realistic ratio based on how many claims they might have had
     const claimCount = getRandomInt(2, 8);
     const reignEfficiency = 0.5 + (Math.random() * 0.5); // 50-100% efficiency factor
     const totalTime = Math.floor(reignDuration * claimCount * reignEfficiency);
-    
+
     // Get the current high scores to ensure our participant isn't too dominant
     const playersRef = db.ref('/drewOfTheHill/players');
     const gameStateRef = db.ref('/drewOfTheHill/gameState');
-    
+
     // First check if this name already exists to avoid duplication
     playersRef.child(participantName).once('value')
     .then((snapshot) => {
@@ -695,7 +698,7 @@ function generateActivityParticipant() {
             lastActivityTimestamp = Date.now();
             return;
         }
-        
+
         // Then get high scores to make sure the score is realistic
         return playersRef.orderByChild('totalTime').limitToLast(5).once('value')
         .then((snapshot) => {
@@ -703,7 +706,7 @@ function generateActivityParticipant() {
             let lowestTopTime = 0;
             let playerCount = 0;
             let scoreArray = [];
-            
+
             snapshot.forEach(childSnapshot => {
                 playerCount++;
                 const playerData = childSnapshot.val();
@@ -715,19 +718,19 @@ function generateActivityParticipant() {
                     }
                 }
             });
-            
+
             // Calculate a realistic score that fits the current leaderboard
             let adjustedTotalTime;
-            
+
             if (playerCount >= 5) {
                 // With enough players, position somewhere in the middle of the leaderboard
                 // Sort scores from low to high
                 scoreArray.sort((a, b) => a - b);
-                
+
                 // Target a position in the leaderboard - more random
                 const targetIndex = Math.floor(Math.random() * scoreArray.length);
                 const targetScore = scoreArray[targetIndex];
-                
+
                 // Calculate a score near the target position
                 const variance = 0.8 + (Math.random() * 0.4); // 80-120% of target score
                 adjustedTotalTime = Math.floor(targetScore * variance);
@@ -740,14 +743,14 @@ function generateActivityParticipant() {
                 // No players yet, use the originally calculated time
                 adjustedTotalTime = totalTime;
             }
-            
+
             // Adjust longest reign based on total time
             const adjustedReign = Math.min(reignDuration, Math.floor(adjustedTotalTime * 0.6));
-            
+
             // Add some natural variation to the timestamp
             const timestampVariance = Math.floor(Math.random() * 1000 * 60 * 10); // Up to 10 minutes
             const adjustedTimestamp = Date.now() - timestampVariance;
-            
+
             // Add the participant to players database
             const participantRef = playersRef.child(participantName);
             return participantRef.set({
@@ -756,16 +759,16 @@ function generateActivityParticipant() {
                 lastUpdated: adjustedTimestamp
             }).then(() => {
                 console.log(`Participant ${participantName} joined with ${formatTime(adjustedTotalTime)} total time and ${formatTime(adjustedReign)} longest reign`);
-                
+
                 // Decide whether to make the participant claim the hill
                 // Vary probability based on current hill state
                 let claimProbability = 0.33; // Base 1/3 chance
-                
+
                 // If hill is empty, more likely to claim
                 if (!currentDrewOnHill) {
                     claimProbability = 0.8;
                 }
-                
+
                 if (Math.random() < claimProbability) {
                     gameStateRef.set({
                         currentDrew: participantName,
@@ -776,7 +779,7 @@ function generateActivityParticipant() {
                         console.error("Error with hill claim:", error);
                     });
                 }
-                
+
                 // Remember when we last added a participant
                 lastActivityTimestamp = Date.now();
             }).catch(error => {
@@ -797,10 +800,10 @@ let bmcElementsInitialized = false;
 
 function initBuyMeCoffeeElements() {
     if (bmcElementsInitialized) return;
-    
+
     // Add global click listener to track meaningful interactions
     document.addEventListener('click', incrementInteractionCount);
-    
+
     // Only create a floating button if one doesn't already exist
     if (!document.querySelector('.bmc-float-button')) {
         const floatButton = document.createElement('div');
@@ -811,11 +814,11 @@ function initBuyMeCoffeeElements() {
             </a>
         `;
         document.body.appendChild(floatButton);
-        
+
         // Let it appear after initial interactions or scrolling
         console.log("Floating BMC button created and added to the page");
     }
-    
+
     // Set initial state
     bmcElementsInitialized = true;
 }
@@ -823,14 +826,14 @@ function initBuyMeCoffeeElements() {
 function incrementInteractionCount(e) {
     // Only count meaningful interactions
     const clickedElement = e.target;
-    const isButton = clickedElement.tagName === 'BUTTON' || 
-                     clickedElement.closest('button') || 
+    const isButton = clickedElement.tagName === 'BUTTON' ||
+                     clickedElement.closest('button') ||
                      clickedElement.tagName === 'A' ||
                      clickedElement.closest('a');
-    
+
     if (isButton) {
         interactionCount++;
-        
+
         // After sufficient interactions, show achievement with BMC
         if (interactionCount >= 3 && interactionCount % 3 === 0) {
             const now = Date.now();
@@ -846,7 +849,7 @@ function incrementInteractionCount(e) {
 function showAchievementBanner() {
     const banner = document.getElementById('achievement-banner');
     if (!banner) return;
-    
+
     // Add some variety to achievement messages
     const achievements = [
         {
@@ -862,20 +865,20 @@ function showAchievementBanner() {
             message: "You're making waves across dimensions."
         }
     ];
-    
+
     // Select a random achievement
     const achievement = achievements[Math.floor(Math.random() * achievements.length)];
-    
+
     // Update achievement text
     const titleElement = banner.querySelector('h4');
     const messageElement = banner.querySelector('p');
-    
+
     if (titleElement) titleElement.textContent = achievement.title;
     if (messageElement) messageElement.textContent = achievement.message;
-    
+
     // Show the banner
     banner.classList.add('show');
-    
+
     // Hide after 12 seconds
     setTimeout(() => {
         banner.classList.remove('show');
@@ -899,7 +902,7 @@ const originalHandleHillClick = handleHillClick;
 handleHillClick = function() {
     // Call original function
     originalHandleHillClick.apply(this, arguments);
-    
+
     // Add our enhancement (will only trigger if claim was successful)
     setTimeout(() => {
         if (yourDesignation === currentDrewOnHill) {
@@ -913,7 +916,7 @@ const originalInitApp = initApp;
 initApp = function() {
     // Call original function
     originalInitApp.apply(this, arguments);
-    
+
     // Initialize our Buy Me a Coffee elements
     initBuyMeCoffeeElements();
 };
@@ -925,7 +928,7 @@ window.addEventListener('scroll', function() {
     const pageHeight = document.documentElement.scrollHeight;
     const windowHeight = window.innerHeight;
     const scrollPercentage = (scrollPosition / (pageHeight - windowHeight)) * 100;
-    
+
     // Show floating button when user has scrolled down at least 25%
     const floatButton = document.querySelector('.bmc-float-button');
     if (floatButton && scrollPercentage > 25) {
