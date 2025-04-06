@@ -1772,3 +1772,65 @@ h1:hover, h2:hover, h3:hover {
         width: 30px;
     }
 }
+
+/* Support Banner between sections */
+.support-banner {
+    margin: 1.5rem 0;
+    text-align: center;
+    background: rgba(14, 22, 33, 0.85);
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    transform: translateY(0);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(101, 206, 167, 0.2);
+}
+
+.support-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #65cea7, #5bc0de);
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.support-banner:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.support-banner:hover::before {
+    opacity: 1;
+}
+
+.support-banner .bmc-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.8rem 1.5rem;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    width: auto;
+    max-width: 100%;
+    transition: all 0.3s ease;
+}
+
+/* Support Banner Responsiveness */
+@media (max-width: 768px) {
+    .support-banner {
+        margin: 1rem 0;
+        padding: 0.75rem;
+    }
+    
+    .support-banner .bmc-link {
+        padding: 0.6rem 1rem;
+        justify-content: center;
+    }
+}
