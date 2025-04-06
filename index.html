@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drew of the Hill - Council of Andrew</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Add Rick and Morty style font -->
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="portal-background">
+        <div class="portal portal1"></div>
+        <div class="portal portal2"></div>
+        <div class="portal portal3"></div>
+    </div>
+
+    <div class="page-container">
+        <div class="app-header">
+            <div class="logo-title-container">
+                <div class="logo-image">
+                    <img src="coaLogo.png" alt="Council of Andrew Logo">
+                </div>
+                <div class="title-container">
+                    <h1>Drew of the Hill</h1>
+                    <p class="tagline">A prestigious interdimensional game for the Council of Andrew across the multiverse</p>
+                </div>
+            </div>
+            
+            <button id="manifesto-toggle" class="btn btn-small">
+                <span class="btn-text">Council Manifesto</span>
+                <span class="btn-icon"><i class="fas fa-book-open"></i></span>
+            </button>
+        </div>
+
+        <div id="manifesto-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <div class="council-manifesto">
+                    <blockquote>
+                        <p>"This multiverse can be a scary place, this is a safe haven for Andrews all over this Youniverse C-137 & beyond.</p>
+                        <p>We are Andrews of all sorts; so long as your name is Andrew or any recognized variation of it, you are welcome & encouraged to come home to your inner Andrew.</p>
+                        <p>We are Andrew, We are One Observer beyond SpaceTime experiencing infinite realities simultaneously."</p>
+                    </blockquote>
+                    <div class="manifesto-source">- The Council of Andrew</div>
+                </div>
+            </div>
+        </div>
+
+        <main class="dashboard-layout">
+            <div class="control-panel">
+                <section class="card designation-setup">
+                    <div class="card-header">
+                        <div class="icon-wrapper">
+                            <i class="fas fa-dna"></i>
+                        </div>
+                        <h2>Register Your Variant</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="input-group">
+                            <label for="player-designation">Your Multiverse Designation</label>
+                            <div class="fancy-input">
+                                <input type="text" id="player-designation" placeholder="e.g., Drew C-137">
+                                <div class="input-focus-effect"></div>
+                            </div>
+                        </div>
+                        <button id="set-designation" class="btn btn-primary">
+                            <span class="btn-text">Register Variant</span>
+                            <span class="btn-icon"><i class="fas fa-check"></i></span>
+                        </button>
+                    </div>
+                </section>
+
+                <section id="game-area" class="card">
+                    <div class="card-header">
+                        <div class="icon-wrapper">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <h2>The Citadel</h2>
+                    </div>
+                    <div class="card-body hill-content">
+                        <button id="the-hill" class="btn btn-claim">
+                            <span class="btn-text">Become the One True Drew!</span>
+                            <span class="btn-icon"><i class="fas fa-flask"></i></span>
+                            <span class="btn-effect"></span>
+                        </button>
+
+                        <div class="status-container">
+                            <div class="status-item">
+                                <div class="status-label">Current Drew</div>
+                                <div class="status-value" id="current-drew">---</div>
+                            </div>
+                            <div class="status-item">
+                                <div class="status-label">Dimension Dominance</div>
+                                <div class="status-value" id="current-reign-time">0s</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="data-panel">
+                <section id="player-stats" class="card">
+                    <div class="card-header">
+                        <div class="icon-wrapper">
+                            <i class="fas fa-atom"></i>
+                        </div>
+                        <h2>Your Multiverse Stats <span id="your-designation-display">---</span></h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="stats-container">
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-hourglass-half"></i>
+                                </div>
+                                <div class="stat-details">
+                                    <span class="stat-label">Total Time as One True Drew</span>
+                                    <strong id="your-total-time" class="stat-value">0s</strong>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-rocket"></i>
+                                </div>
+                                <div class="stat-details">
+                                    <span class="stat-label">Longest Dimension Control</span>
+                                    <strong id="your-longest-reign" class="stat-value">0s</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="leaderboards" class="card">
+                    <div class="card-header">
+                        <div class="icon-wrapper">
+                            <i class="fas fa-medal"></i>
+                        </div>
+                        <h2>Multiversal Rankings</h2>
+                    </div>
+                    <div class="card-body leaderboard-container">
+                        <div class="leaderboard-panel" id="active-leaderboard">
+                            <div class="leaderboard-tabs">
+                                <button class="tab-btn active" data-target="cumulative-leaderboard">Total Time</button>
+                                <button class="tab-btn" data-target="reign-leaderboard">Longest Reigns</button>
+                            </div>
+                            
+                            <div class="tab-content active" id="cumulative-leaderboard">
+                                <h3><i class="fas fa-clock"></i> Top Drews (Total Time)</h3>
+                                <ol id="cumulative-list" class="leaderboard-list"></ol>
+                            </div>
+                            
+                            <div class="tab-content" id="reign-leaderboard">
+                                <h3><i class="fas fa-crown"></i> Longest Reigns</h3>
+                                <ol id="reign-list" class="leaderboard-list"></ol>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <footer class="main-footer">
+            <p>Drew of the Hill &copy; <span id="current-year"></span> | Sanctioned by the Council of Andrew across all timelines</p>
+        </footer>
+    </div>
+
+    <!-- AOS Animation Library -->
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <!-- Main Script -->
+    <script src="script.js"></script>
+</body>
+</html>
