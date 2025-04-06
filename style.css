@@ -2217,6 +2217,29 @@ h1:hover, h2:hover, h3:hover {
     border: 1px solid rgba(61, 225, 128, 0.4) !important;
 }
 
+/* Screenshot wrapper styling */
+.screenshot-wrapper {
+    display: block;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 12px;
+    background-color: #1a2539;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.screenshot-wrapper * {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Make sure cloned elements display properly */
+.screenshot-wrapper .share-container,
+.screenshot-wrapper .share-btn {
+    display: none !important;
+}
+
 @media (max-width: 480px) {
     .share-btn {
         width: 32px;

@@ -869,19 +869,64 @@ function captureScreenshot(elementId, shareType) {
     // Store the share type for later use
     currentShareType = shareType;
 
-    // Add a temporary class for styling during screenshot
-    element.classList.add('screenshot-capture');
+    // Create a wrapper for better capture
+    const wrapper = document.createElement('div');
+    wrapper.className = 'screenshot-wrapper';
+    wrapper.style.position = 'fixed';
+    wrapper.style.left = '-9999px';
+    wrapper.style.top = '0';
+    wrapper.style.width = element.offsetWidth + 'px';
+    wrapper.style.backgroundColor = '#1a2539';
+    wrapper.style.padding = '20px';
+    wrapper.style.borderRadius = '12px';
+    wrapper.style.zIndex = '-1';
 
-    // Use html2canvas to capture the element
-    html2canvas(element, {
-        backgroundColor: '#1a2539', // Match the card background color
+    // Clone the element for capturing
+    const clone = element.cloneNode(true);
+
+    // Add title based on share type
+    const titleElement = document.createElement('h3');
+    titleElement.style.color = '#3de180';
+    titleElement.style.marginBottom = '15px';
+    titleElement.style.textAlign = 'center';
+    titleElement.style.fontFamily = 'Montserrat, sans-serif';
+
+    switch(shareType) {
+        case 'achievement':
+            titleElement.textContent = 'Achievement Unlocked!';
+            break;
+        case 'stats':
+            titleElement.textContent = 'My Drew of the Hill Stats';
+            break;
+        case 'current-status':
+            titleElement.textContent = 'Current Drew Status';
+            break;
+        case 'total-leaderboard':
+            titleElement.textContent = 'Total Time Leaderboard';
+            break;
+        case 'reign-leaderboard':
+            titleElement.textContent = 'Longest Reigns Leaderboard';
+            break;
+        default:
+            titleElement.textContent = 'Drew of the Hill';
+    }
+
+    wrapper.appendChild(titleElement);
+    wrapper.appendChild(clone);
+    document.body.appendChild(wrapper);
+
+    // Use html2canvas to capture the wrapper
+    html2canvas(wrapper, {
+        backgroundColor: '#1a2539',
         scale: 2, // Higher resolution
         logging: false,
         allowTaint: true,
-        useCORS: true
+        useCORS: true,
+        width: wrapper.offsetWidth,
+        height: wrapper.offsetHeight
     }).then(canvas => {
-        // Remove the temporary class
-        element.classList.remove('screenshot-capture');
+        // Remove the wrapper
+        document.body.removeChild(wrapper);
 
         // Store the canvas data
         currentScreenshot = canvas;
@@ -899,7 +944,7 @@ function captureScreenshot(elementId, shareType) {
         addBranding(canvas);
     }).catch(error => {
         console.error('Error capturing screenshot:', error);
-        element.classList.remove('screenshot-capture');
+        document.body.removeChild(wrapper);
         alert('Failed to capture screenshot. Please try again.');
     });
 }
@@ -909,19 +954,36 @@ function addBranding(canvas) {
     const ctx = canvas.getContext('2d');
 
     // Add a gradient footer
-    const gradient = ctx.createLinearGradient(0, canvas.height - 40, 0, canvas.height);
-    gradient.addColorStop(0, 'rgba(26, 37, 57, 0.8)');
+    const footerHeight = 60;
+    const gradient = ctx.createLinearGradient(0, canvas.height - footerHeight, 0, canvas.height);
+    gradient.addColorStop(0, 'rgba(26, 37, 57, 0.9)');
     gradient.addColorStop(1, 'rgba(26, 37, 57, 1)');
 
     ctx.fillStyle = gradient;
-    ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
+    ctx.fillRect(0, canvas.height - footerHeight, canvas.width, footerHeight);
+
+    // Add a subtle glow effect
+    const glowGradient = ctx.createRadialGradient(
+        canvas.width / 2, canvas.height - footerHeight / 2, 10,
+        canvas.width / 2, canvas.height - footerHeight / 2, canvas.width / 2
+    );
+    glowGradient.addColorStop(0, 'rgba(61, 225, 128, 0.2)');
+    glowGradient.addColorStop(1, 'rgba(61, 225, 128, 0)');
+
+    ctx.fillStyle = glowGradient;
+    ctx.fillRect(0, canvas.height - footerHeight, canvas.width, footerHeight);
 
     // Add text
     ctx.fillStyle = '#3de180';
-    ctx.font = 'bold 20px Montserrat, sans-serif';
+    ctx.font = 'bold 22px Montserrat, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('Drew of the Hill - Council of Andrew', canvas.width / 2, canvas.height - 20);
+    ctx.fillText('Drew of the Hill - Council of Andrew', canvas.width / 2, canvas.height - footerHeight / 2);
+
+    // Add a subtle border around the entire image
+    ctx.strokeStyle = 'rgba(61, 225, 128, 0.3)';
+    ctx.lineWidth = 6;
+    ctx.strokeRect(0, 0, canvas.width, canvas.height);
 }
 
 // Close the screenshot overlay
@@ -958,19 +1020,27 @@ function shareToFacebook() {
     // Convert canvas to data URL
     const imageData = currentScreenshot.toDataURL('image/png');
 
-    // Since Facebook doesn't allow direct image sharing via URL parameters,
-    // we'll open the Facebook share dialog with text and let the user attach the image manually
-    // after downloading it
+    // Create a temporary hidden link to download the image
+    const tempLink = document.createElement('a');
+    tempLink.style.display = 'none';
+    tempLink.href = imageData;
+    tempLink.download = `drew-of-the-hill-${currentShareType}-${Date.now()}.png`;
+    document.body.appendChild(tempLink);
 
+    // Automatically download the image
+    tempLink.click();
+
+    // Clean up
+    setTimeout(() => {
+        document.body.removeChild(tempLink);
+    }, 100);
+
+    // Open Facebook share dialog
     const shareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`, '_blank');
 
-    // Prompt user to download the image first
-    setTimeout(() => {
-        if (confirm('Facebook requires you to manually attach the image. Would you like to download it now?')) {
-            downloadScreenshot();
-        }
-    }, 1000);
+    // Show instructions to the user
+    alert('The image has been downloaded to your device. To share it on Facebook, click "Add Photos/Videos" in the Facebook share dialog that just opened, then select the downloaded image.');
 }
 
 // Get appropriate share text based on the type
