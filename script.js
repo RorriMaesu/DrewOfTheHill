@@ -1069,18 +1069,45 @@ function shareToFacebookWithCanvas(canvas, shareType) {
     let shareText = getShareText(shareType);
 
     try {
-        // Convert canvas to blob for upload
+        // Try to convert canvas to blob for upload
         console.log('Attempting to convert provided canvas to blob');
-        canvas.toBlob(function(blob) {
-            console.log('Canvas converted to blob successfully');
-            // Upload to Imgur
-            uploadToImgur(blob, shareText);
-        }, 'image/png');
+
+        // Use a try-catch block specifically for the toBlob call
+        try {
+            canvas.toBlob(function(blob) {
+                console.log('Canvas converted to blob successfully');
+                // Upload to Imgur
+                uploadToImgur(blob, shareText);
+            }, 'image/png');
+        } catch (blobError) {
+            // If toBlob fails (likely due to tainted canvas), use a fallback approach
+            console.warn('Canvas toBlob failed, using fallback approach:', blobError);
+
+            // Create a fallback image with the share text
+            createFallbackShare(shareType, shareText);
+        }
     } catch (error) {
-        console.error('Error converting canvas to blob:', error);
+        console.error('Error in shareToFacebookWithCanvas:', error);
         hideLoadingOverlay();
         alert('Error preparing image for sharing. Please try again.');
     }
+}
+
+// Create a fallback share when canvas export fails
+function createFallbackShare(shareType, shareText) {
+    console.log('Creating fallback share for type:', shareType);
+
+    // Create a simple share without an image
+    const shareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
+
+    // Add a note about the image
+    const enhancedShareText = shareText + '\n\nPlay Drew of the Hill: ' + shareUrl;
+
+    // Share directly to Facebook
+    directFacebookShare(shareUrl, enhancedShareText, null);
+
+    // Hide the loading overlay
+    hideLoadingOverlay();
 }
 
 // Capture screenshot and then share
@@ -1187,20 +1214,78 @@ function captureScreenshotAndShare(elementId, shareType) {
         // Create a global variable to track if the promise resolves
         window.capturePromiseResolved = false;
 
-        html2canvas(wrapper, {
-            backgroundColor: '#1a2539',
-            scale: 2, // Higher resolution
-            logging: true, // Enable logging for debugging
-            allowTaint: true,
-            useCORS: true,
-            width: wrapper.offsetWidth,
-            height: wrapper.offsetHeight,
-            onclone: function(clonedDoc) {
-                console.log('Document cloned for html2canvas');
-                console.log('Cloned wrapper dimensions:', clonedDoc.querySelector('.screenshot-wrapper').offsetWidth, 'x',
-                            clonedDoc.querySelector('.screenshot-wrapper').offsetHeight);
+        // Pre-load any images to avoid tainting the canvas
+        const images = wrapper.querySelectorAll('img');
+        let loadedImages = 0;
+        const totalImages = images.length;
+
+        console.log(`Found ${totalImages} images in the wrapper`);
+
+        // If there are no images, proceed directly with html2canvas
+        if (totalImages === 0) {
+            captureWithHtml2Canvas();
+            return;
+        }
+
+        // Process each image to ensure it's CORS-compatible
+        images.forEach(img => {
+            // Create a new image with crossOrigin attribute
+            const newImg = new Image();
+            newImg.crossOrigin = 'anonymous';
+
+            // Set up load and error handlers
+            newImg.onload = function() {
+                // Replace the original image with the CORS-enabled one
+                img.src = newImg.src;
+
+                loadedImages++;
+                console.log(`Loaded image ${loadedImages}/${totalImages}`);
+
+                // When all images are loaded, proceed with html2canvas
+                if (loadedImages === totalImages) {
+                    captureWithHtml2Canvas();
+                }
+            };
+
+            newImg.onerror = function() {
+                console.warn(`Failed to load image with CORS: ${img.src}`);
+                loadedImages++;
+
+                // When all images are processed, proceed with html2canvas
+                if (loadedImages === totalImages) {
+                    captureWithHtml2Canvas();
+                }
+            };
+
+            // Start loading the image
+            if (img.src) {
+                // Try to load the image with CORS
+                newImg.src = img.src;
+            } else {
+                // Skip this image if it has no source
+                loadedImages++;
+                if (loadedImages === totalImages) {
+                    captureWithHtml2Canvas();
+                }
             }
-        }).then(canvas => {
+        });
+
+        // Function to capture with html2canvas
+        function captureWithHtml2Canvas() {
+            html2canvas(wrapper, {
+                backgroundColor: '#1a2539',
+                scale: 2, // Higher resolution
+                logging: true, // Enable logging for debugging
+                allowTaint: true,
+                useCORS: true,
+                width: wrapper.offsetWidth,
+                height: wrapper.offsetHeight,
+                onclone: function(clonedDoc) {
+                    console.log('Document cloned for html2canvas');
+                    console.log('Cloned wrapper dimensions:', clonedDoc.querySelector('.screenshot-wrapper').offsetWidth, 'x',
+                                clonedDoc.querySelector('.screenshot-wrapper').offsetHeight);
+                }
+            }).then(canvas => {
             console.log('Screenshot captured successfully');
             console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
             window.capturePromiseResolved = true;
