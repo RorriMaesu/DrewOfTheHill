@@ -2435,6 +2435,7 @@ h1:hover, h2:hover, h3:hover {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
 }
 
 .sharing-overlay.active {
@@ -2443,7 +2444,7 @@ h1:hover, h2:hover, h3:hover {
 }
 
 .sharing-container {
-    background: var(--card-color);
+    background: #1a2539;
     border-radius: var(--border-radius);
     width: 90%;
     max-width: 500px;
@@ -2454,6 +2455,7 @@ h1:hover, h2:hover, h3:hover {
     transition: transform 0.3s ease;
     max-height: 90vh;
     overflow-y: auto;
+    color: #ffffff;
 }
 
 .sharing-overlay.active .sharing-container {
@@ -2482,12 +2484,16 @@ h1:hover, h2:hover, h3:hover {
 }
 
 .sharing-container h3 {
-    color: var(--primary-color);
+    color: #3de180;
     margin-top: 0;
     margin-bottom: 20px;
     display: flex;
     align-items: center;
     font-size: 1.5rem;
+    text-align: center;
+    justify-content: center;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    font-weight: 600;
 }
 
 .sharing-container h3 i {
@@ -2496,10 +2502,13 @@ h1:hover, h2:hover, h3:hover {
 }
 
 .sharing-image-container {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     border-radius: var(--border-radius-sm);
     overflow: hidden;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    background: #ffffff;
+    padding: 2px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .sharing-image {
@@ -2510,7 +2519,13 @@ h1:hover, h2:hover, h3:hover {
 
 .sharing-text {
     margin-bottom: 20px;
-    color: var(--text-color);
+    color: #ffffff;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 16px;
+    line-height: 1.5;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .sharing-options {
@@ -2520,7 +2535,7 @@ h1:hover, h2:hover, h3:hover {
 }
 
 .sharing-option {
-    padding: 12px;
+    padding: 14px;
     border-radius: var(--border-radius-pill);
     border: none;
     font-weight: 600;
@@ -2531,6 +2546,9 @@ h1:hover, h2:hover, h3:hover {
     gap: 8px;
     transition: all 0.3s ease;
     color: white;
+    font-size: 15px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .sharing-option:hover {
