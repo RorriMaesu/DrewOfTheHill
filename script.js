@@ -858,6 +858,20 @@ function generateActivityParticipant() {
 let currentScreenshot = null;
 let currentShareType = null;
 
+// Imgur API client ID
+const IMGUR_CLIENT_ID = 'c60d4c3e8ca7a96';
+
+// Initialize Imgur uploader
+let imgurUploader = null;
+
+// Initialize when document is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Facebook SDK
+    if (window.FB) {
+        console.log('Facebook SDK initialized');
+    }
+});
+
 // Function to capture a screenshot of a specific element
 function captureScreenshot(elementId, shareType) {
     const element = document.getElementById(elementId);
@@ -1014,75 +1028,119 @@ function shareToFacebook() {
         return;
     }
 
+    // Show loading overlay
+    showLoadingOverlay('Preparing your image for sharing...');
+
     // Get share text based on the type
     let shareText = getShareText(currentShareType);
 
-    // Convert canvas to data URL
-    const imageData = currentScreenshot.toDataURL('image/png');
+    // Convert canvas to blob for upload
+    currentScreenshot.toBlob(function(blob) {
+        // Upload to Imgur
+        uploadToImgur(blob, shareText);
+    }, 'image/png');
+}
 
-    // Create a temporary hidden link to download the image
-    const tempLink = document.createElement('a');
-    tempLink.style.display = 'none';
-    tempLink.href = imageData;
-    const fileName = `drew-of-the-hill-${currentShareType}-${Date.now()}.png`;
-    tempLink.download = fileName;
-    document.body.appendChild(tempLink);
+// Show loading overlay
+function showLoadingOverlay(message) {
+    // Close any existing overlays
+    closeScreenshotOverlay();
+    closeFbInstructions();
 
-    // Automatically download the image
-    tempLink.click();
-
-    // Clean up
-    setTimeout(() => {
-        document.body.removeChild(tempLink);
-    }, 100);
-
-    // Create a more detailed instruction overlay
-    closeScreenshotOverlay(); // Close the current overlay
-
-    // Create and show the Facebook sharing instructions overlay
-    const fbInstructionsOverlay = document.createElement('div');
-    fbInstructionsOverlay.className = 'fb-instructions-overlay';
-    fbInstructionsOverlay.innerHTML = `
-        <div class="fb-instructions-container">
-            <h3><i class="fab fa-facebook"></i> Share to Facebook</h3>
-            <div class="fb-instructions-content">
-                <p>The image has been downloaded to your device as: <strong>${fileName}</strong></p>
-                <div class="fb-steps">
-                    <div class="fb-step">
-                        <div class="step-number">1</div>
-                        <div class="step-text">Click the button below to open Facebook</div>
-                    </div>
-                    <div class="fb-step">
-                        <div class="step-number">2</div>
-                        <div class="step-text">In the Facebook share dialog, click <strong>"Add Photos/Videos"</strong></div>
-                    </div>
-                    <div class="fb-step">
-                        <div class="step-number">3</div>
-                        <div class="step-text">Select the downloaded image from your device</div>
-                    </div>
-                    <div class="fb-step">
-                        <div class="step-number">4</div>
-                        <div class="step-text">Add your comment and click <strong>"Post"</strong></div>
-                    </div>
-                </div>
-                <div class="fb-actions">
-                    <button class="fb-action-btn cancel" onclick="closeFbInstructions()">
-                        <i class="fas fa-times"></i> Cancel
-                    </button>
-                    <button class="fb-action-btn" onclick="openFacebookShare('${shareText}')">
-                        <i class="fab fa-facebook-f"></i> Open Facebook
-                    </button>
-                </div>
-            </div>
+    // Create loading overlay
+    const loadingOverlay = document.createElement('div');
+    loadingOverlay.className = 'loading-overlay';
+    loadingOverlay.innerHTML = `
+        <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <p>${message}</p>
         </div>
     `;
 
-    document.body.appendChild(fbInstructionsOverlay);
+    document.body.appendChild(loadingOverlay);
 
-    // Show the overlay with animation
+    // Show with animation
     setTimeout(() => {
-        fbInstructionsOverlay.classList.add('active');
+        loadingOverlay.classList.add('active');
     }, 10);
+}
+
+// Hide loading overlay
+function hideLoadingOverlay() {
+    const overlay = document.querySelector('.loading-overlay');
+    if (overlay) {
+        overlay.classList.remove('active');
+        setTimeout(() => {
+            document.body.removeChild(overlay);
+        }, 300);
+    }
+}
+
+// Upload image to Imgur
+function uploadToImgur(imageBlob, shareText) {
+    // Create FormData for the upload
+    const formData = new FormData();
+    formData.append('image', imageBlob);
+
+    // Use fetch API to upload to Imgur
+    fetch('https://api.imgur.com/3/image', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Client-ID ${IMGUR_CLIENT_ID}`
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Successfully uploaded to Imgur
+            const imageUrl = data.data.link;
+            // Now share to Facebook with the image URL
+            shareToFacebookWithImage(imageUrl, shareText);
+        } else {
+            // Handle error
+            hideLoadingOverlay();
+            alert('Failed to upload image. Please try again.');
+            console.error('Imgur upload failed:', data);
+        }
+    })
+    .catch(error => {
+        hideLoadingOverlay();
+        alert('Failed to upload image. Please try again.');
+        console.error('Error uploading to Imgur:', error);
+    });
+}
+
+// Share to Facebook with image URL
+function shareToFacebookWithImage(imageUrl, shareText) {
+    hideLoadingOverlay();
+
+    // Initialize Facebook SDK if not already initialized
+    if (window.FB) {
+        // Use Facebook Feed Dialog with the image URL
+        FB.ui({
+            method: 'feed',
+            link: 'https://rorrimaesu.github.io/DrewOfTheHill/',
+            picture: imageUrl,
+            caption: 'Drew of the Hill',
+            description: shareText
+        }, function(response) {
+            if (response && !response.error_message) {
+                // Success
+                console.log('Shared successfully');
+            } else {
+                // Error or user canceled
+                console.log('Share canceled or failed');
+            }
+        });
+    } else {
+        // Fallback if FB SDK is not available
+        const shareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`, '_blank');
+
+        // Show a message about the image
+        alert('Your image has been uploaded. You can find it at: ' + imageUrl);
+    }
 }
 
 // Open Facebook share dialog
