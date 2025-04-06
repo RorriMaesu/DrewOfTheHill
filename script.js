@@ -214,7 +214,7 @@ function setupFirebaseListeners() {
                 document.getElementById('player-stats').classList.add('has-stats');
             } else {
                 // Player node doesn't exist yet, initialize it
-                console.log(`No stats found for ${yourDesignation, initializing...`);
+                console.log(`No stats found for ${yourDesignation}, initializing...`);
                 yourTotalTimeDisplay.textContent = '0s';
                 yourLongestReignDisplay.textContent = '0s';
 
