@@ -314,6 +314,14 @@ function handleSetDesignation() {
         return;
     }
 
+    // Scroll to the game area after setting designation
+    const gameArea = document.getElementById('game-area');
+    if (gameArea) {
+        setTimeout(() => {
+            smoothScrollToElement(gameArea, 20);
+        }, 300); // Small delay to allow UI to update first
+    }
+
     // Detach old player listener if designation changes and db exists
     if (yourDesignation && db && yourDesignation !== newDesignation) {
         console.log(`Detaching listener for old designation: ${yourDesignation}`);
@@ -355,11 +363,23 @@ function handleHillClick() {
     if (!yourDesignation) {
         alert("Please set your designation before claiming the hill!");
         designationInput.focus(); // Focus input to prompt user
+
+        // Scroll to the designation input area
+        const designationSetup = document.querySelector('.designation-setup');
+        if (designationSetup) {
+            smoothScrollToElement(designationSetup, 20);
+        }
         return;
     }
     // Use the locally tracked currentDrewOnHill from the listener to avoid race conditions
     if (yourDesignation === currentDrewOnHill) {
         console.log("You are already the Drew!");
+
+        // Scroll to the leaderboard section
+        const leaderboardSection = document.querySelector('.leaderboard-container');
+        if (leaderboardSection) {
+            smoothScrollToElement(leaderboardSection, 20);
+        }
         return; // Already the king/drew
     }
 
@@ -504,6 +524,19 @@ function initApp() {
 
 // --- UI Component Functions ---
 
+// Smooth scroll to element function
+function smoothScrollToElement(element, offset = 0) {
+    if (!element) return;
+
+    const elementPosition = element.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+    window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+    });
+}
+
 // Setup the manifesto modal functionality
 function setupManifestoModal() {
     const modal = document.getElementById('manifesto-modal');
@@ -514,17 +547,39 @@ function setupManifestoModal() {
         btn.addEventListener('click', function() {
             modal.style.display = "block";
             document.body.style.overflow = "hidden"; // Prevent scrolling behind modal
+
+            // Scroll to the top of the modal content
+            const modalContent = modal.querySelector('.modal-content');
+            if (modalContent) {
+                modalContent.scrollTop = 0;
+            }
         });
 
         closeBtn.addEventListener('click', function() {
             modal.style.display = "none";
             document.body.style.overflow = "auto"; // Re-enable scrolling
+
+            // After closing modal, scroll back to where user was
+            const gameArea = document.getElementById('game-area');
+            if (gameArea) {
+                setTimeout(() => {
+                    smoothScrollToElement(gameArea, 20);
+                }, 100);
+            }
         });
 
         window.addEventListener('click', function(event) {
             if (event.target === modal) {
                 modal.style.display = "none";
                 document.body.style.overflow = "auto";
+
+                // After closing modal, scroll back to where user was
+                const gameArea = document.getElementById('game-area');
+                if (gameArea) {
+                    setTimeout(() => {
+                        smoothScrollToElement(gameArea, 20);
+                    }, 100);
+                }
             }
         });
     }
@@ -550,6 +605,11 @@ function setupLeaderboardTabs() {
                 const targetContent = document.getElementById(targetId);
                 if (targetContent) {
                     targetContent.classList.add('active');
+
+                    // Scroll to the active tab content
+                    setTimeout(() => {
+                        smoothScrollToElement(targetContent, 20);
+                    }, 100);
                 }
             });
         });
@@ -894,6 +954,20 @@ function handleSuccessfulHillClaim() {
         setTimeout(() => {
             showAchievementBanner();
             lastAchievementShown = Date.now();
+
+            // Scroll to the achievement banner
+            const achievementBanner = document.getElementById('achievement-banner');
+            if (achievementBanner && achievementBanner.classList.contains('show')) {
+                smoothScrollToElement(achievementBanner, 20);
+            }
+
+            // After showing achievement, scroll to leaderboard after a delay
+            setTimeout(() => {
+                const leaderboardSection = document.querySelector('.leaderboard-container');
+                if (leaderboardSection) {
+                    smoothScrollToElement(leaderboardSection, 20);
+                }
+            }, 3000);
         }, 2000);
     }
 }
