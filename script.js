@@ -1399,13 +1399,28 @@ function hideLoadingOverlay() {
 function uploadToImgur(imageBlob, shareText) {
     console.log('Attempting to upload image to Imgur');
 
+    // Show loading overlay with message
+    showLoadingOverlay('Preparing your image for sharing...');
+
     // Create FormData for the upload
     const formData = new FormData();
     formData.append('image', imageBlob);
 
     // Use fetch API with timeout to upload to Imgur
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    const timeoutId = setTimeout(() => {
+        controller.abort();
+        hideLoadingOverlay();
+        console.warn('Imgur upload timed out');
+        // Show error message and fall back to direct sharing
+        alert('Image upload timed out. Your content will be shared without the image.');
+        shareToFacebookDirect(null, shareText);
+    }, 15000); // 15 second timeout
+
+    // Update loading message
+    setTimeout(() => {
+        showLoadingOverlay('Uploading your image to prepare for sharing...');
+    }, 500);
 
     fetch('https://api.imgur.com/3/image', {
         method: 'POST',
@@ -1421,6 +1436,7 @@ function uploadToImgur(imageBlob, shareText) {
             // If we get a rate limit error (429) or any other error
             if (response.status === 429) {
                 console.warn('Imgur rate limit reached, using direct sharing');
+                showLoadingOverlay('Rate limit reached. Preparing alternative sharing method...');
                 return Promise.reject(new Error('Rate limit reached'));
             }
             return Promise.reject(new Error(`HTTP error ${response.status}`));
@@ -1432,19 +1448,31 @@ function uploadToImgur(imageBlob, shareText) {
             // Successfully uploaded to Imgur
             console.log('Successfully uploaded to Imgur:', data.data.link);
             const imageUrl = data.data.link;
-            // Now share to Facebook with the image URL
-            shareToFacebookWithImage(imageUrl, shareText);
+
+            // Update loading message
+            showLoadingOverlay('Image uploaded successfully! Preparing to share...');
+
+            // Short delay to show success message
+            setTimeout(() => {
+                // Now share to Facebook with the image URL
+                shareToFacebookWithImage(imageUrl, shareText);
+            }, 800);
         } else {
             // Handle error
             console.error('Imgur upload failed:', data);
+            hideLoadingOverlay();
             // Fall back to direct sharing
-            shareToFacebookDirect(imageBlob, shareText);
+            alert('Unable to upload image. Your content will be shared without the image.');
+            shareToFacebookDirect(null, shareText);
         }
     })
     .catch(error => {
+        clearTimeout(timeoutId);
         console.error('Error uploading to Imgur:', error);
+        hideLoadingOverlay();
         // Fall back to direct sharing
-        shareToFacebookDirect(imageBlob, shareText);
+        alert('Error uploading image. Your content will be shared without the image.');
+        shareToFacebookDirect(null, shareText);
     });
 }
 
