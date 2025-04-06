@@ -1718,13 +1718,88 @@ function copyImageLink(imageUrl) {
 
 // Download image directly
 function downloadImageDirect(imageUrl) {
-    const link = document.createElement('a');
-    link.href = imageUrl;
-    link.download = 'drew-of-the-hill-screenshot.png';
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    console.log('Downloading image from URL:', imageUrl);
+
+    // Create a temporary image to load the image data
+    const tempImg = new Image();
+    tempImg.crossOrigin = 'anonymous'; // Enable cross-origin loading
+
+    // Set up load handler
+    tempImg.onload = function() {
+        // Create a canvas to draw the image
+        const canvas = document.createElement('canvas');
+        canvas.width = tempImg.width;
+        canvas.height = tempImg.height;
+
+        // Draw the image on the canvas
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(tempImg, 0, 0);
+
+        // Convert the canvas to a data URL
+        try {
+            // Try to get a blob URL first (better for large images)
+            canvas.toBlob(function(blob) {
+                // Create a blob URL
+                const blobUrl = URL.createObjectURL(blob);
+
+                // Create a download link
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = 'drew-of-the-hill-screenshot.png';
+                document.body.appendChild(link);
+
+                // Trigger the download
+                link.click();
+
+                // Clean up
+                document.body.removeChild(link);
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 100); // Clean up the blob URL after download starts
+            }, 'image/png');
+        } catch (blobError) {
+            console.error('Error creating blob for download:', blobError);
+
+            // Fallback to data URL if blob fails
+            try {
+                const dataUrl = canvas.toDataURL('image/png');
+
+                // Create a download link
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = 'drew-of-the-hill-screenshot.png';
+                document.body.appendChild(link);
+
+                // Trigger the download
+                link.click();
+
+                // Clean up
+                document.body.removeChild(link);
+            } catch (dataUrlError) {
+                console.error('Error creating data URL for download:', dataUrlError);
+                alert('Unable to download the image. Please try using the Copy Link option instead.');
+            }
+        }
+    };
+
+    // Set up error handler
+    tempImg.onerror = function() {
+        console.error('Error loading image for download from URL:', imageUrl);
+
+        // Try a direct download as a last resort
+        try {
+            const link = document.createElement('a');
+            link.href = imageUrl;
+            link.download = 'drew-of-the-hill-screenshot.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (directError) {
+            console.error('Direct download also failed:', directError);
+            alert('Unable to download the image. Please try using the Copy Link option instead.');
+        }
+    };
+
+    // Start loading the image
+    tempImg.src = imageUrl;
 }
 
 // Direct Twitter share
