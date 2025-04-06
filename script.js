@@ -1048,11 +1048,51 @@ function shareToFacebook(elementId, shareType) {
     // Get share text based on the type
     let shareText = getShareText(currentShareType);
 
-    // Convert canvas to blob for upload
-    currentScreenshot.toBlob(function(blob) {
-        // Upload to Imgur
-        uploadToImgur(blob, shareText);
-    }, 'image/png');
+    try {
+        // Convert canvas to blob for upload
+        console.log('Attempting to convert canvas to blob');
+        currentScreenshot.toBlob(function(blob) {
+            console.log('Canvas converted to blob successfully');
+            // Upload to Imgur
+            uploadToImgur(blob, shareText);
+        }, 'image/png');
+    } catch (error) {
+        console.error('Error converting canvas to blob:', error);
+        hideLoadingOverlay();
+        alert('Error preparing image for sharing. Please try again.');
+    }
+}
+
+// Share to Facebook with Canvas
+function shareToFacebookWithCanvas(canvas, shareType) {
+    console.log(`shareToFacebookWithCanvas called with canvas:`, canvas);
+    console.log(`Share type: ${shareType}`);
+
+    if (!canvas) {
+        console.error('No canvas provided to shareToFacebookWithCanvas');
+        alert('Unable to prepare image for sharing. Please try again.');
+        return;
+    }
+
+    // Show loading overlay
+    showLoadingOverlay('Preparing your image for sharing...');
+
+    // Get share text based on the type
+    let shareText = getShareText(shareType);
+
+    try {
+        // Convert canvas to blob for upload
+        console.log('Attempting to convert provided canvas to blob');
+        canvas.toBlob(function(blob) {
+            console.log('Canvas converted to blob successfully');
+            // Upload to Imgur
+            uploadToImgur(blob, shareText);
+        }, 'image/png');
+    } catch (error) {
+        console.error('Error converting canvas to blob:', error);
+        hideLoadingOverlay();
+        alert('Error preparing image for sharing. Please try again.');
+    }
 }
 
 // Capture screenshot and then share
@@ -1190,9 +1230,12 @@ function captureScreenshotAndShare(elementId, shareType) {
             addBranding(canvas);
             console.log('Branding added to canvas');
 
-            // Now share to Facebook
-            console.log('Calling shareToFacebook() with no parameters');
-            shareToFacebook();
+            // Create a local reference to ensure it doesn't get lost
+            const screenshotToShare = canvas;
+
+            // Now share to Facebook using the local reference
+            console.log('Calling shareToFacebookWithCanvas with the canvas');
+            shareToFacebookWithCanvas(screenshotToShare, currentShareType);
         }).catch(error => {
             console.error('Error capturing screenshot:', error);
             console.error('Error details:', error.message, error.stack);
