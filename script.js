@@ -1034,33 +1034,21 @@ function shareToFacebook(elementId, shareType) {
         return;
     }
 
-    // Otherwise, use the existing screenshot if available
-    if (!currentScreenshot) {
-        console.error('No screenshot available to share - currentScreenshot is null or undefined');
-        console.error('This may happen if the screenshot capture process failed or was interrupted');
-        alert('Unable to prepare image for sharing. Please try again.');
+    // This function should not be called without parameters anymore
+    // If it is, it's likely a bug, so we'll redirect to the new function
+    console.warn('shareToFacebook called without parameters - this is deprecated');
+
+    // If we have a current screenshot, use it
+    if (currentScreenshot) {
+        console.log('Using existing screenshot with shareToFacebookWithCanvas');
+        shareToFacebookWithCanvas(currentScreenshot, currentShareType);
         return;
     }
 
-    // Show loading overlay
-    showLoadingOverlay('Preparing your image for sharing...');
-
-    // Get share text based on the type
-    let shareText = getShareText(currentShareType);
-
-    try {
-        // Convert canvas to blob for upload
-        console.log('Attempting to convert canvas to blob');
-        currentScreenshot.toBlob(function(blob) {
-            console.log('Canvas converted to blob successfully');
-            // Upload to Imgur
-            uploadToImgur(blob, shareText);
-        }, 'image/png');
-    } catch (error) {
-        console.error('Error converting canvas to blob:', error);
-        hideLoadingOverlay();
-        alert('Error preparing image for sharing. Please try again.');
-    }
+    // If we get here, there's no screenshot available
+    console.error('No screenshot available to share - currentScreenshot is null or undefined');
+    console.error('This may happen if the screenshot capture process failed or was interrupted');
+    alert('Unable to prepare image for sharing. Please try again.');
 }
 
 // Share to Facebook with Canvas
@@ -1235,7 +1223,15 @@ function captureScreenshotAndShare(elementId, shareType) {
 
             // Now share to Facebook using the local reference
             console.log('Calling shareToFacebookWithCanvas with the canvas');
-            shareToFacebookWithCanvas(screenshotToShare, currentShareType);
+            // Make sure we're using the local reference, not the global variable
+            const canvasToShare = screenshotToShare;
+            const typeToShare = currentShareType;
+
+            // Use setTimeout to ensure this runs in a new call stack
+            setTimeout(() => {
+                console.log('Executing shareToFacebookWithCanvas from setTimeout');
+                shareToFacebookWithCanvas(canvasToShare, typeToShare);
+            }, 0);
         }).catch(error => {
             console.error('Error capturing screenshot:', error);
             console.error('Error details:', error.message, error.stack);
