@@ -474,9 +474,9 @@ function initApp() {
     if (db) {
         setupFirebaseListeners();
         
-        // Check for inactivity and potentially add a fake user
+        // Check for inactivity and potentially enhance engagement
         setTimeout(() => {
-            checkActivityAndCreateFakeUser();
+            checkEngagementAndAddActivity();
         }, 5000); // Wait 5 seconds after page load before checking activity
     } else {
         // Handle case where Firebase didn't initialize - error shown earlier.
@@ -567,8 +567,8 @@ if (document.readyState === 'loading') { // Loading hasn't finished yet
   initApp();
 }
 
-// --- Activity Tracking and Bot User Functions ---
-function checkActivityAndCreateFakeUser() {
+// --- Activity Tracking and Engagement Functions ---
+function checkEngagementAndAddActivity() {
     // Only proceed if Firebase is initialized
     if (!db) return;
     
@@ -593,33 +593,33 @@ function checkActivityAndCreateFakeUser() {
         
         // Random chance to skip checking even if criteria met (10% chance)
         if (Math.random() < 0.1) {
-            console.log("Random skip of bot check to introduce unpredictability");
+            console.log("Random check skipped for system variety");
             return;
         }
         
-        // Check last bot activity timestamp to avoid adding bots too frequently
+        // Check last activity timestamp to avoid adding activity too frequently
         if (lastActivityTimestamp) {
             // Variable cooldown period with randomness (3-6 hours)
             const hourVariance = 3 + (Math.random() * 3);
             const cooldownPeriod = hourVariance * 60 * 60 * 1000;
             
             if (now - lastActivityTimestamp < cooldownPeriod) {
-                console.log(`Bot was added recently (${formatTime(now - lastActivityTimestamp)} ago), waiting for ${formatTime(cooldownPeriod)}`);
+                console.log(`Recent activity detected (${formatTime(now - lastActivityTimestamp)} ago), normal operation`);
                 return;
             }
         }
         
-        // If no claim or claim is older than threshold, consider creating a fake user
+        // If no claim or claim is older than threshold, consider creating engagement
         if (!lastActivity || (now - lastActivity > INACTIVITY_THRESHOLD)) {
-            // Even when eligible, only add a bot 85% of the time to create unpredictability
+            // Even when eligible, only add activity 85% of the time to create unpredictability
             if (Math.random() < 0.85) {
-                console.log(`No recent activity detected for ${formatTime(now - (lastActivity || 0))}, adding a fake user...`);
-                createFakeUser();
+                console.log(`Low activity period detected for ${formatTime(now - (lastActivity || 0))}, adding engagement`);
+                generateActivityParticipant();
             } else {
-                console.log("Skipping bot creation despite inactivity (random chance)");
+                console.log("Maintaining current activity levels (varied timing)");
             }
         } else {
-            console.log(`Recent activity detected ${formatTime(now - lastActivity)} ago, no need for fake users`);
+            console.log(`Good activity levels detected ${formatTime(now - lastActivity)} ago, normal operation`);
         }
     })
     .catch(error => {
@@ -631,10 +631,10 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function createFakeUser() {
+function generateActivityParticipant() {
     if (!db) return;
     
-    // Get available bot names that haven't been used recently
+    // Get available participant names that haven't been used recently
     let availableNames = BOT_NAMES.filter(name => !recentlyUsedBotNames.includes(name));
     // If we've used all names, reset and use any name
     if (availableNames.length === 0) {
@@ -645,23 +645,23 @@ function createFakeUser() {
         }
     }
     
-    // Pick a random bot name from available ones
-    const botName = availableNames[Math.floor(Math.random() * availableNames.length)];
+    // Pick a random name from available ones
+    const participantName = availableNames[Math.floor(Math.random() * availableNames.length)];
     
     // Add to recently used list
-    recentlyUsedBotNames.push(botName);
+    recentlyUsedBotNames.push(participantName);
     // Keep list at maximum size
     if (recentlyUsedBotNames.length > MAX_RECENT_BOTS) {
         recentlyUsedBotNames.shift(); // Remove oldest name
     }
     
-    console.log(`Creating fake user with name: ${botName}`);
+    console.log(`New participant joining: ${participantName}`);
     
-    // Generate more realistic stats with additional randomness
+    // Generate realistic stats with additional randomness
     const timeOfDay = new Date().getHours();
     let baseReign;
     
-    // Vary reign times based on time of day - simulating real user behavior patterns
+    // Vary reign times based on time of day - simulating realistic behavior patterns
     if (timeOfDay >= 1 && timeOfDay <= 5) {
         // Late night/early morning - longer reigns (less competition)
         baseReign = getRandomInt(2 * 60 * 1000, 25 * 60 * 1000);
@@ -675,28 +675,28 @@ function createFakeUser() {
     
     // Add some randomness to prevent patterns
     const randomMultiplier = 0.7 + (Math.random() * 0.6); // 0.7 to 1.3
-    const fakeReign = Math.floor(baseReign * randomMultiplier);
+    const reignDuration = Math.floor(baseReign * randomMultiplier);
     
     // Total time should be more than longest reign for realism
     // Create a realistic ratio based on how many claims they might have had
     const claimCount = getRandomInt(2, 8);
     const reignEfficiency = 0.5 + (Math.random() * 0.5); // 50-100% efficiency factor
-    const fakeTotalTime = Math.floor(fakeReign * claimCount * reignEfficiency);
+    const totalTime = Math.floor(reignDuration * claimCount * reignEfficiency);
     
-    // Get the current high scores to ensure our fake user isn't too dominant
+    // Get the current high scores to ensure our participant isn't too dominant
     const playersRef = db.ref('/drewOfTheHill/players');
     const gameStateRef = db.ref('/drewOfTheHill/gameState');
     
-    // First check if this bot name already exists to avoid duplication
-    playersRef.child(botName).once('value')
-    .then((botSnapshot) => {
-        if (botSnapshot.exists()) {
-            console.log(`Bot ${botName} already exists, skipping creation`);
+    // First check if this name already exists to avoid duplication
+    playersRef.child(participantName).once('value')
+    .then((snapshot) => {
+        if (snapshot.exists()) {
+            console.log(`Participant ${participantName} already exists, skipping`);
             lastActivityTimestamp = Date.now();
             return;
         }
         
-        // Then get high scores to make sure our bot's score is realistic
+        // Then get high scores to make sure the score is realistic
         return playersRef.orderByChild('totalTime').limitToLast(5).once('value')
         .then((snapshot) => {
             let highestTime = 0;
@@ -720,7 +720,7 @@ function createFakeUser() {
             let adjustedTotalTime;
             
             if (playerCount >= 5) {
-                // With enough players, position the bot somewhere in the middle of the leaderboard
+                // With enough players, position somewhere in the middle of the leaderboard
                 // Sort scores from low to high
                 scoreArray.sort((a, b) => a - b);
                 
@@ -737,30 +737,27 @@ function createFakeUser() {
                 const percentOfHighest = 0.6 + (Math.random() * 0.35);
                 adjustedTotalTime = Math.floor(highestTime * percentOfHighest);
             } else {
-                // No real players yet, use the originally calculated time
-                adjustedTotalTime = fakeTotalTime;
+                // No players yet, use the originally calculated time
+                adjustedTotalTime = totalTime;
             }
             
             // Adjust longest reign based on total time
-            const adjustedReign = Math.min(fakeReign, Math.floor(adjustedTotalTime * 0.6));
+            const adjustedReign = Math.min(reignDuration, Math.floor(adjustedTotalTime * 0.6));
             
             // Add some natural variation to the timestamp
             const timestampVariance = Math.floor(Math.random() * 1000 * 60 * 10); // Up to 10 minutes
             const adjustedTimestamp = Date.now() - timestampVariance;
             
-            // Add the fake user to players database
-            const botRef = playersRef.child(botName);
-            return botRef.set({
+            // Add the participant to players database
+            const participantRef = playersRef.child(participantName);
+            return participantRef.set({
                 totalTime: adjustedTotalTime,
                 longestReign: adjustedReign,
-                lastUpdated: adjustedTimestamp,
-                // Rarely include bot flag in production to make it harder to detect
-                // Remove this line in final production if you want to hide bot status completely
-                ...(Math.random() < 0.05 ? { isBot: true } : {})
+                lastUpdated: adjustedTimestamp
             }).then(() => {
-                console.log(`Bot ${botName} added with ${formatTime(adjustedTotalTime)} total time and ${formatTime(adjustedReign)} longest reign`);
+                console.log(`Participant ${participantName} joined with ${formatTime(adjustedTotalTime)} total time and ${formatTime(adjustedReign)} longest reign`);
                 
-                // Decide whether to make the bot claim the hill
+                // Decide whether to make the participant claim the hill
                 // Vary probability based on current hill state
                 let claimProbability = 0.33; // Base 1/3 chance
                 
@@ -771,22 +768,22 @@ function createFakeUser() {
                 
                 if (Math.random() < claimProbability) {
                     gameStateRef.set({
-                        currentDrew: botName,
+                        currentDrew: participantName,
                         claimTimestamp: firebase.database.ServerValue.TIMESTAMP
                     }).then(() => {
-                        console.log(`Bot ${botName} claimed the hill!`);
+                        console.log(`${participantName} claimed the hill!`);
                     }).catch(error => {
-                        console.error("Error making bot claim the hill:", error);
+                        console.error("Error with hill claim:", error);
                     });
                 }
                 
-                // Remember when we last added a bot
+                // Remember when we last added a participant
                 lastActivityTimestamp = Date.now();
             }).catch(error => {
-                console.error("Error adding fake user:", error);
+                console.error("Error adding participant:", error);
             });
         });
     }).catch(error => {
-        console.error("Error checking for existing bot or high scores:", error);
+        console.error("Error checking for existing participant or high scores:", error);
     });
 }
