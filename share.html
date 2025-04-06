@@ -11,6 +11,10 @@
     <meta property="og:title" content="Drew of the Hill - Shared Content" />
     <meta property="og:description" content="Check out my progress in Drew of the Hill!" />
     <meta property="og:image" id="og-image" content="https://rorrimaesu.github.io/DrewOfTheHill/coaLogo.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Drew of the Hill Screenshot" />
+    <meta property="fb:app_id" content="1234567890" />
 
     <style>
         body {
@@ -116,18 +120,35 @@
 
             if (text) {
                 try {
-                    const decodedText = decodeURIComponent(text);
-                    console.log('Decoded text:', decodedText);
+                    // First try to decode the text
+                    let decodedText;
+                    try {
+                        decodedText = decodeURIComponent(text);
+                    } catch (decodeError) {
+                        console.error('Error decoding text parameter:', decodeError);
+                        // If decoding fails, use the raw text
+                        decodedText = text;
+                    }
+
+                    console.log('Processed text:', decodedText);
+
+                    // Clean the text for display
+                    const cleanText = decodedText.replace(/[\r\n]+/g, ' ').trim();
 
                     // Set the text in the page
-                    document.getElementById('shared-text').textContent = decodedText;
+                    document.getElementById('shared-text').textContent = cleanText;
 
-                    // Update the Open Graph description
+                    // Update the Open Graph description - keep it short for social media
                     const ogDesc = document.querySelector('meta[property="og:description"]');
-                    ogDesc.setAttribute('content', decodedText);
+                    // Limit to 200 characters for social media
+                    const shortText = cleanText.length > 200 ?
+                        cleanText.substring(0, 197) + '...' :
+                        cleanText;
+                    ogDesc.setAttribute('content', shortText);
                 } catch (error) {
-                    console.error('Error decoding text parameter:', error);
-                    document.getElementById('shared-text').textContent = text;
+                    console.error('Error processing text:', error);
+                    // Fallback to a generic message
+                    document.getElementById('shared-text').textContent = 'Check out my progress in Drew of the Hill!';
                 }
             }
 

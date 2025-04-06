@@ -1480,50 +1480,58 @@ function directFacebookShare(shareUrl, shareText, imageUrl) {
     console.log('Share text:', shareText);
     console.log('Image URL:', imageUrl);
 
-    // Create a share URL that includes the image
-    let sharePageUrl;
+    try {
+        // Always use the GitHub Pages URL for sharing to ensure consistency
+        const baseShareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/share.html';
 
-    if (imageUrl) {
-        // Use our custom share page with the image and text as parameters
-        let baseShareUrl;
+        // Clean and prepare the text for sharing
+        let cleanText = shareText || '';
+        // Remove any characters that might cause issues in URLs
+        cleanText = cleanText.replace(/[\r\n]+/g, ' ').trim();
 
-        // Check if we're running from a file:// URL or a web server
-        if (window.location.protocol === 'file:') {
-            // When running locally, use the GitHub Pages URL
-            baseShareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/share.html';
+        // Create the share URL
+        let sharePageUrl;
+
+        if (imageUrl) {
+            // Use our custom share page with the image and text as parameters
+            sharePageUrl = baseShareUrl +
+                '?img=' + encodeURIComponent(imageUrl) +
+                '&text=' + encodeURIComponent(cleanText);
+            console.log('Generated share page URL:', sharePageUrl);
         } else {
-            // When running on a web server, construct the URL properly
-            const pathParts = window.location.pathname.split('/');
-            const lastPart = pathParts[pathParts.length - 1];
-            const basePath = lastPart === 'index.html' || lastPart === '' ?
-                window.location.pathname.replace(/index\.html$|\/$/, '') :
-                window.location.pathname;
-
-            baseShareUrl = window.location.origin + basePath + '/share.html';
+            // If no image, just use the main URL
+            sharePageUrl = shareUrl;
         }
 
-        // Construct the full URL with parameters
-        sharePageUrl = `${baseShareUrl}?img=${encodeURIComponent(imageUrl)}&text=${encodeURIComponent(shareText)}`;
-        console.log('Generated share page URL:', sharePageUrl);
-    } else {
-        // If no image, just use the main URL
-        sharePageUrl = shareUrl;
-    }
-
-    try {
         // Use a timeout to ensure the window opens properly
         setTimeout(() => {
-            // Share the URL to our share page which has proper Open Graph tags
-            const fbShareWindow = window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(sharePageUrl)}`, '_blank', 'width=600,height=400');
+            // Create the Facebook share URL
+            const fbShareUrl = 'https://www.facebook.com/sharer/sharer.php?u=' +
+                encodeURIComponent(sharePageUrl);
+
+            console.log('Opening Facebook share window with URL:', fbShareUrl);
+
+            // Open the share window
+            const fbShareWindow = window.open(fbShareUrl, '_blank', 'width=600,height=400');
 
             if (!fbShareWindow || fbShareWindow.closed || typeof fbShareWindow.closed === 'undefined') {
                 // Popup was blocked
+                console.warn('Facebook share window was blocked');
                 alert('The Facebook share window was blocked by your browser. Please allow popups for this site or use the Copy Link option instead.');
             }
         }, 100);
     } catch (error) {
-        console.error('Error opening Facebook share window:', error);
-        alert('Unable to open Facebook share window. Please try using the Copy Link option instead.');
+        console.error('Error in Facebook sharing process:', error);
+
+        // Fallback to basic sharing
+        try {
+            const basicShareUrl = 'https://www.facebook.com/sharer/sharer.php?u=' +
+                encodeURIComponent(shareUrl);
+            window.open(basicShareUrl, '_blank', 'width=600,height=400');
+        } catch (fallbackError) {
+            console.error('Fallback sharing also failed:', fallbackError);
+            alert('Unable to open Facebook share window. Please try using the Copy Link option instead.');
+        }
     }
 }
 
