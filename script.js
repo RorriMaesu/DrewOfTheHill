@@ -1339,38 +1339,115 @@ function uploadToImgur(imageBlob, shareText) {
 function shareToFacebookWithImage(imageUrl, shareText) {
     hideLoadingOverlay();
 
-    // Initialize Facebook SDK if not already initialized
-    if (window.FB) {
-        // Use Facebook Feed Dialog with the image URL
-        FB.ui({
-            method: 'feed',
-            link: 'https://rorrimaesu.github.io/DrewOfTheHill/',
-            picture: imageUrl,
-            caption: 'Drew of the Hill',
-            description: shareText
-        }, function(response) {
-            if (response && !response.error_message) {
-                // Success
-                console.log('Shared successfully');
-            } else {
-                // Error or user canceled
-                console.log('Share canceled or failed');
-            }
-        });
-    } else {
-        // Fallback if FB SDK is not available
-        const shareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`, '_blank');
+    // Create a more user-friendly sharing experience
+    const shareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
 
-        // Show a message about the image
-        alert('Your image has been uploaded. You can find it at: ' + imageUrl);
+    // Show the sharing overlay with the image
+    showSharingOverlay(imageUrl, shareText, shareUrl);
+}
+
+// Show sharing overlay with image and options
+function showSharingOverlay(imageUrl, shareText, shareUrl) {
+    // Close any existing overlays
+    closeScreenshotOverlay();
+    closeFbInstructions();
+
+    // Create sharing overlay
+    const sharingOverlay = document.createElement('div');
+    sharingOverlay.className = 'sharing-overlay';
+    sharingOverlay.innerHTML = `
+        <div class="sharing-container">
+            <div class="sharing-close" onclick="closeSharingOverlay()">
+                <i class="fas fa-times"></i>
+            </div>
+            <h3><i class="fas fa-share-alt"></i> Share to Social Media</h3>
+            <div class="sharing-image-container">
+                <img src="${imageUrl}" alt="Drew of the Hill Screenshot" class="sharing-image">
+            </div>
+            <div class="sharing-text">
+                <p>${shareText}</p>
+            </div>
+            <div class="sharing-options">
+                <button class="sharing-option facebook" onclick="directFacebookShare('${shareUrl}', '${shareText}', '${imageUrl}')">
+                    <i class="fab fa-facebook-f"></i> Share to Facebook
+                </button>
+                <button class="sharing-option twitter" onclick="directTwitterShare('${shareUrl}', '${shareText}')">
+                    <i class="fab fa-twitter"></i> Share to Twitter
+                </button>
+                <button class="sharing-option copy" onclick="copyShareLink('${imageUrl}', '${shareText}')">
+                    <i class="fas fa-link"></i> Copy Link
+                </button>
+                <button class="sharing-option download" onclick="downloadImage('${imageUrl}')">
+                    <i class="fas fa-download"></i> Download Image
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(sharingOverlay);
+
+    // Show with animation
+    setTimeout(() => {
+        sharingOverlay.classList.add('active');
+    }, 10);
+}
+
+// Close sharing overlay
+function closeSharingOverlay() {
+    const overlay = document.querySelector('.sharing-overlay');
+    if (overlay) {
+        overlay.classList.remove('active');
+        setTimeout(() => {
+            document.body.removeChild(overlay);
+        }, 300);
     }
 }
 
-// Open Facebook share dialog
-function openFacebookShare(shareText) {
-    const shareUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`, '_blank');
+// Direct Facebook share
+function directFacebookShare(shareUrl, shareText, imageUrl) {
+    // Facebook doesn't allow direct image sharing via URL parameters,
+    // so we'll include the image URL in the text
+    const fullShareText = `${shareText}\n\nCheck out my screenshot: ${imageUrl}`;
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(fullShareText)}`, '_blank');
+}
+
+// Direct Twitter share
+function directTwitterShare(shareUrl, shareText) {
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`, '_blank');
+}
+
+// Copy share link
+function copyShareLink(imageUrl, shareText) {
+    const textToCopy = `${shareText}\n\nCheck out my screenshot: ${imageUrl}\n\nPlay Drew of the Hill: https://rorrimaesu.github.io/DrewOfTheHill/`;
+
+    // Create a temporary textarea element to copy from
+    const textarea = document.createElement('textarea');
+    textarea.value = textToCopy;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+
+    try {
+        // Copy the text
+        document.execCommand('copy');
+        alert('Share text and link copied to clipboard!');
+    } catch (err) {
+        console.error('Failed to copy text: ', err);
+        alert('Failed to copy to clipboard. Please try again.');
+    }
+
+    document.body.removeChild(textarea);
+}
+
+// Download image
+function downloadImage(imageUrl) {
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = `drew-of-the-hill-${Date.now()}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 // Close Facebook instructions overlay
