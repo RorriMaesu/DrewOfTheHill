@@ -1563,7 +1563,7 @@ function showSharingOverlay(imageUrl, shareText, shareUrl) {
                 <button class="sharing-option facebook" onclick="directFacebookShare('${shareUrl}', '${shareText}', '${imageUrl}')">
                     <i class="fab fa-facebook-f"></i> Share to Facebook
                 </button>
-                <button class="sharing-option twitter" onclick="directTwitterShare('${shareUrl}', '${shareText}')">
+                <button class="sharing-option twitter" onclick="directTwitterShare('${shareUrl}', '${shareText}', '${imageUrl}')">
                     <i class="fab fa-twitter"></i> Share to Twitter
                 </button>
                 <button class="sharing-option copy" onclick="copyShareLink('${imageUrl}', '${shareText}')">
@@ -1602,14 +1602,23 @@ function directFacebookShare(shareUrl, shareText, imageUrl) {
     console.log('Image URL:', imageUrl);
 
     try {
-        // Use a very simple approach - just share the main URL
-        // Facebook will scrape the page for Open Graph tags
+        // Prepare the share text to include the image URL if available
+        let enhancedShareText = shareText;
+        if (imageUrl) {
+            // Add the image URL to the share text
+            enhancedShareText = `${shareText}\n\nCheck out my screenshot: ${imageUrl}`;
+        }
+
+        // Use the main URL as the base URL for sharing
         const mainUrl = 'https://rorrimaesu.github.io/DrewOfTheHill/';
 
-        // Create a simple share dialog URL
-        const fbShareUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(mainUrl);
+        // Create the Facebook share dialog URL with the enhanced text
+        const fbShareUrl = 'https://www.facebook.com/sharer/sharer.php?u=' +
+            encodeURIComponent(mainUrl) +
+            '&quote=' + encodeURIComponent(enhancedShareText);
 
         console.log('Opening Facebook share window with URL:', fbShareUrl);
+        console.log('Enhanced share text:', enhancedShareText);
 
         // Open the share window with a delay to ensure it works properly
         setTimeout(() => {
@@ -1625,7 +1634,7 @@ function directFacebookShare(shareUrl, shareText, imageUrl) {
         // If we have an image, show it to the user in a sharing overlay
         if (imageUrl) {
             // Show the sharing overlay with the image and text
-            showSimpleSharingOverlay(imageUrl, shareText);
+            showSimpleSharingOverlay(imageUrl, enhancedShareText);
         }
     } catch (error) {
         console.error('Error in Facebook sharing process:', error);
@@ -1803,20 +1812,56 @@ function downloadImageDirect(imageUrl) {
 }
 
 // Direct Twitter share
-function directTwitterShare(shareUrl, shareText) {
+function directTwitterShare(shareUrl, shareText, imageUrl) {
     console.log('Sharing to Twitter with URL:', shareUrl);
     console.log('Share text:', shareText);
+    console.log('Image URL:', imageUrl);
 
     try {
+        // Prepare the share text to include the image URL if available
+        let enhancedShareText = shareText;
+        if (imageUrl) {
+            // Add the image URL to the share text, keeping within Twitter's character limit
+            // Twitter has a 280 character limit, so we need to be careful with the length
+            const baseText = `${shareText}\n\nCheck out my screenshot: `;
+
+            // Calculate remaining characters for the URL
+            const maxLength = 280;
+            const urlLength = imageUrl.length;
+            const baseTextLength = baseText.length;
+
+            if (baseTextLength + urlLength <= maxLength) {
+                // We can fit the full text and URL
+                enhancedShareText = baseText + imageUrl;
+            } else {
+                // We need to truncate the text to fit the URL
+                const availableChars = maxLength - urlLength - 4; // 4 for ellipsis and space
+                const truncatedText = shareText.substring(0, availableChars) + '... ';
+                enhancedShareText = truncatedText + imageUrl;
+            }
+        }
+
+        console.log('Enhanced Twitter share text:', enhancedShareText);
+
         // Use a timeout to ensure the window opens properly
         setTimeout(() => {
-            const twitterShareWindow = window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`, '_blank', 'width=600,height=400');
+            // Create the Twitter share URL
+            const twitterShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(enhancedShareText)}`;
+
+            const twitterShareWindow = window.open(twitterShareUrl, '_blank', 'width=600,height=400');
 
             if (!twitterShareWindow || twitterShareWindow.closed || typeof twitterShareWindow.closed === 'undefined') {
                 // Popup was blocked
+                console.warn('Twitter share window was blocked');
                 alert('The Twitter share window was blocked by your browser. Please allow popups for this site or use the Copy Link option instead.');
             }
         }, 100);
+
+        // If we have an image, show it to the user in a sharing overlay
+        if (imageUrl) {
+            // Show the sharing overlay with the image and text
+            showSimpleSharingOverlay(imageUrl, enhancedShareText);
+        }
     } catch (error) {
         console.error('Error opening Twitter share window:', error);
         alert('Unable to open Twitter share window. Please try using the Copy Link option instead.');
