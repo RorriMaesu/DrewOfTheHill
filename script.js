@@ -1405,36 +1405,97 @@ function closeSharingOverlay() {
 
 // Direct Facebook share
 function directFacebookShare(shareUrl, shareText, imageUrl) {
+    console.log('Sharing to Facebook with URL:', shareUrl);
+    console.log('Share text:', shareText);
+    console.log('Image URL:', imageUrl);
+
     // Facebook doesn't allow direct image sharing via URL parameters,
     // so we'll include the image URL in the text
     const fullShareText = `${shareText}\n\nCheck out my screenshot: ${imageUrl}`;
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(fullShareText)}`, '_blank');
+
+    try {
+        // Use a timeout to ensure the window opens properly
+        setTimeout(() => {
+            const fbShareWindow = window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(fullShareText)}`, '_blank', 'width=600,height=400');
+
+            if (!fbShareWindow || fbShareWindow.closed || typeof fbShareWindow.closed === 'undefined') {
+                // Popup was blocked
+                alert('The Facebook share window was blocked by your browser. Please allow popups for this site or use the Copy Link option instead.');
+            }
+        }, 100);
+    } catch (error) {
+        console.error('Error opening Facebook share window:', error);
+        alert('Unable to open Facebook share window. Please try using the Copy Link option instead.');
+    }
 }
 
 // Direct Twitter share
 function directTwitterShare(shareUrl, shareText) {
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`, '_blank');
+    console.log('Sharing to Twitter with URL:', shareUrl);
+    console.log('Share text:', shareText);
+
+    try {
+        // Use a timeout to ensure the window opens properly
+        setTimeout(() => {
+            const twitterShareWindow = window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`, '_blank', 'width=600,height=400');
+
+            if (!twitterShareWindow || twitterShareWindow.closed || typeof twitterShareWindow.closed === 'undefined') {
+                // Popup was blocked
+                alert('The Twitter share window was blocked by your browser. Please allow popups for this site or use the Copy Link option instead.');
+            }
+        }, 100);
+    } catch (error) {
+        console.error('Error opening Twitter share window:', error);
+        alert('Unable to open Twitter share window. Please try using the Copy Link option instead.');
+    }
 }
 
 // Copy share link
 function copyShareLink(imageUrl, shareText) {
+    console.log('Copying share link with image URL:', imageUrl);
+
     const textToCopy = `${shareText}\n\nCheck out my screenshot: ${imageUrl}\n\nPlay Drew of the Hill: https://rorrimaesu.github.io/DrewOfTheHill/`;
 
+    // Use the modern Clipboard API if available
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(textToCopy)
+            .then(() => {
+                console.log('Text copied to clipboard successfully');
+                alert('Share text and link copied to clipboard!');
+            })
+            .catch(err => {
+                console.error('Failed to copy text with Clipboard API:', err);
+                fallbackCopy(textToCopy);
+            });
+    } else {
+        console.log('Clipboard API not available, using fallback');
+        fallbackCopy(textToCopy);
+    }
+}
+
+// Fallback copy method for browsers that don't support Clipboard API
+function fallbackCopy(text) {
     // Create a temporary textarea element to copy from
     const textarea = document.createElement('textarea');
-    textarea.value = textToCopy;
+    textarea.value = text;
     textarea.style.position = 'fixed';
     textarea.style.opacity = '0';
     document.body.appendChild(textarea);
     textarea.select();
 
     try {
-        // Copy the text
-        document.execCommand('copy');
-        alert('Share text and link copied to clipboard!');
+        // Copy the text using the deprecated method
+        const success = document.execCommand('copy');
+        if (success) {
+            console.log('Text copied to clipboard with fallback method');
+            alert('Share text and link copied to clipboard!');
+        } else {
+            console.error('execCommand returned false');
+            alert('Failed to copy to clipboard. Please manually copy the link from the sharing dialog.');
+        }
     } catch (err) {
-        console.error('Failed to copy text: ', err);
-        alert('Failed to copy to clipboard. Please try again.');
+        console.error('Failed to copy text with fallback method:', err);
+        alert('Failed to copy to clipboard. Please manually copy the link from the sharing dialog.');
     }
 
     document.body.removeChild(textarea);
@@ -1442,12 +1503,35 @@ function copyShareLink(imageUrl, shareText) {
 
 // Download image
 function downloadImage(imageUrl) {
-    const link = document.createElement('a');
-    link.href = imageUrl;
-    link.download = `drew-of-the-hill-${Date.now()}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    console.log('Downloading image from URL:', imageUrl);
+
+    // Create a temporary canvas to convert the image to a downloadable blob
+    const tempImg = new Image();
+    tempImg.crossOrigin = 'anonymous'; // Enable cross-origin loading
+    tempImg.onload = function() {
+        // Create a canvas with the image dimensions
+        const canvas = document.createElement('canvas');
+        canvas.width = tempImg.width;
+        canvas.height = tempImg.height;
+
+        // Draw the image on the canvas
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(tempImg, 0, 0);
+
+        // Convert to blob and download
+        canvas.toBlob(function(blob) {
+            // Use FileSaver.js to save the file
+            saveAs(blob, `drew-of-the-hill-${Date.now()}.png`);
+        }, 'image/png');
+    };
+
+    tempImg.onerror = function() {
+        console.error('Error loading image for download');
+        alert('Unable to download the image. Please try using the Copy Link option instead.');
+    };
+
+    // Set the source to start loading
+    tempImg.src = imageUrl;
 }
 
 // Close Facebook instructions overlay
