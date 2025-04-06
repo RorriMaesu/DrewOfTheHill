@@ -1654,7 +1654,7 @@ h1:hover, h2:hover, h3:hover {
 }
 
 .achievement-banner.show {
-    display: flex;
+    display: flex !important;
 }
 
 .achievement-icon {
@@ -1832,5 +1832,63 @@ h1:hover, h2:hover, h3:hover {
     .support-banner .bmc-link {
         padding: 0.6rem 1rem;
         justify-content: center;
+    }
+}
+
+/* Facebook Button and Link Styling */
+.btn-facebook {
+    background: linear-gradient(135deg, #3b5998, #2d4373);
+    border: 1px solid rgba(59, 89, 152, 0.2);
+    color: white;
+}
+
+.btn-facebook:hover {
+    background: linear-gradient(135deg, #4c70ba, #3b5998);
+    box-shadow: 0 0 25px rgba(59, 89, 152, 0.5);
+}
+
+.btn-facebook .btn-icon {
+    color: white;
+}
+
+.footer-links {
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.footer-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: rgba(61, 225, 128, 0.1);
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.footer-link:hover {
+    background: rgba(61, 225, 128, 0.2);
+    transform: translateY(-2px);
+}
+
+.footer-link i {
+    color: #3b5998;
+}
+
+/* Mobile Responsiveness for new elements */
+@media (max-width: 768px) {
+    .header-actions {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .footer-links {
+        flex-direction: column;
+        align-items: center;
     }
 }
