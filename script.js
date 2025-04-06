@@ -1,6 +1,6 @@
-// --- Firebase Initialization - Place at the top of script.js ---
+// --- Backend Initialization - Place at the top of script.js ---
 
-// Firebase configuration using details provided by the user
+// Backend configuration using details provided
 const firebaseConfig = {
   apiKey: "AIzaSyC8g78WtZfxDQybNM-TJD6oiyV-EbjwbfM", // From your Firebase project settings
   authDomain: "drew-of-the-hill-game.firebaseapp.com", // From your Firebase project settings
@@ -12,29 +12,29 @@ const firebaseConfig = {
   measurementId: "G-Z8NP77QXGT" // Optional: Only if you need Analytics
 };
 
-// Initialize Firebase
+// Initialize Backend
 let db; // Declare db globally
 try {
     // Using global firebase object from script tags
     if (typeof firebase !== 'undefined' && typeof firebase.initializeApp === 'function') {
         // Check if databaseURL looks like a valid URL (basic check)
         if (!firebaseConfig.databaseURL || !firebaseConfig.databaseURL.startsWith("https")) {
-             console.error("Firebase databaseURL might be missing or incorrect in firebaseConfig.");
-             alert("ERROR: Firebase Database URL is missing or invalid. Please check the script.js file.");
+             console.error("Database URL might be missing or incorrect in configuration.");
+             alert("ERROR: Database URL is missing or invalid. Please check the script.js file.");
              // Optional: Prevent further execution if DB URL is missing
-             // throw new Error("Firebase databaseURL is required and should be valid.");
+             // throw new Error("Database URL is required and should be valid.");
         } else {
             const app = firebase.initializeApp(firebaseConfig);
             db = firebase.database(); // Assign to global db variable
-            console.log("Firebase Initialized successfully!");
+            console.log("Backend initialized successfully!");
         }
     } else {
-        console.error("Firebase SDK not loaded correctly. Check script tags in index.html.");
-        alert("Error: Firebase SDK failed to load. Please check the console.");
+        console.error("Backend SDK not loaded correctly. Check script tags in index.html.");
+        alert("Error: Database SDK failed to load. Please check the console.");
     }
 } catch (error) {
-    console.error("Error initializing Firebase:", error);
-    alert("Failed to initialize Firebase. Check console for details and ensure your firebaseConfig object is correct.");
+    console.error("Error initializing backend system:", error);
+    alert("Failed to initialize backend. Check console for details and ensure your configuration is correct.");
 }
 
 
@@ -103,12 +103,12 @@ function formatTime(milliseconds) {
 }
 
 function isValidDesignation(name) {
-    // Allow almost any character, but trim and check length. Avoid Firebase reserved characters.
+    // Allow almost any character, but trim and check length. Avoid reserved characters.
     const trimmedName = name ? name.trim() : '';
     if (trimmedName.length === 0 || trimmedName.length > 50) return false;
-    // Basic check for reserved characters - crucial for using as Firebase keys
+    // Basic check for reserved characters - crucial for using as database keys
     if (/[.$#\[\]/]/.test(trimmedName)) {
-        console.warn("Designation contains Firebase reserved characters (., $, #, [, ], /). Please choose a different name.");
+        console.warn("Designation contains reserved characters (., $, #, [, ], /). Please choose a different name.");
         alert("Designation cannot contain ., $, #, [, ], or / characters. Please choose a different name.");
         return false; // Disallow these characters
     }
@@ -181,13 +181,13 @@ function setupFirebaseListeners() {
             gameStateRef.set({ currentDrew: null, claimTimestamp: null }).catch(err => console.error("Error setting initial game state:", err));
         }
     }, (error) => {
-        console.error("FirebaseError reading game state:", error);
+        console.error("Error reading game state:", error);
         // Provide user feedback (e.g., display error message on page)
         currentDrewDisplay.textContent = 'Error';
         currentReignTimeDisplay.textContent = 'Error';
         clearInterval(reignTimerId);
         hillButton.disabled = true; // Disable interaction on error
-        alert("Error connecting to game state. Please check your connection or Firebase setup.");
+        alert("Error connecting to game state. Please check your connection or database setup.");
     });
 
     // 2. Your Player Stats Listener
@@ -214,7 +214,7 @@ function setupFirebaseListeners() {
                 document.getElementById('player-stats').classList.add('has-stats');
             } else {
                 // Player node doesn't exist yet, initialize it
-                console.log(`No stats found for ${yourDesignation}, initializing...`);
+                console.log(`No stats found for ${yourDesignation, initializing...`);
                 yourTotalTimeDisplay.textContent = '0s';
                 yourLongestReignDisplay.textContent = '0s';
 
@@ -232,7 +232,7 @@ function setupFirebaseListeners() {
                 });
             }
         }, (error) => {
-            console.error(`FirebaseError reading player stats for ${yourDesignation}:`, error);
+            console.error(`Error reading player stats for ${yourDesignation}:`, error);
             yourTotalTimeDisplay.textContent = 'Error';
             yourLongestReignDisplay.textContent = 'Error';
             document.getElementById('player-stats').classList.add('stats-error');
@@ -274,7 +274,7 @@ function setupFirebaseListeners() {
             cumulativeList.appendChild(li);
         });
     }, (error) => {
-        console.error("FirebaseError reading cumulative leaderboard:", error);
+        console.error("Error reading cumulative leaderboard:", error);
         cumulativeList.innerHTML = '<li>Error loading leaderboard</li>';
     });
 
@@ -296,7 +296,7 @@ function setupFirebaseListeners() {
             reignList.appendChild(li);
         });
      }, (error) => {
-        console.error("FirebaseError reading longest reign leaderboard:", error);
+        console.error("Error reading longest reign leaderboard:", error);
         reignList.innerHTML = '<li>Error loading leaderboard</li>';
     });
 }
@@ -404,9 +404,9 @@ function handleHillClick() {
                  }, (error, committed, snapshot) => {
                      // Optional: Callback function after transaction attempt
                      if (error) {
-                         console.error(`Firebase transaction failed for ${prevDrew}:`, error);
+                         console.error(`Transaction failed for ${prevDrew}:`, error);
                      } else if (!committed) {
-                         console.warn(`Firebase transaction not committed for ${prevDrew} (data may have changed concurrently).`);
+                         console.warn(`Transaction not committed for ${prevDrew} (data may have changed concurrently).`);
                          // Might need to inform the user or retry logic depending on importance
                      } else {
                          console.log(`Stats transaction successful for ${prevDrew}.`);
@@ -421,7 +421,7 @@ function handleHillClick() {
              console.log("No previous Drew/timestamp to update stats for.");
          }
     }).catch((error) => {
-         console.error("Failed to claim the hill via Firebase set:", error);
+         console.error("Failed to claim the hill:", error);
          alert("Error claiming the hill. Please check connection or try again.");
          // Re-enable button on failure ONLY IF the current drew isn't you (state listener handles the 'is-me' case)
          if(currentDrewOnHill !== yourDesignation){ hillButton.disabled = false; }
@@ -479,22 +479,22 @@ function initApp() {
             checkEngagementAndAddActivity();
         }, 5000); // Wait 5 seconds after page load before checking activity
     } else {
-        // Handle case where Firebase didn't initialize - error shown earlier.
-        console.error("Firebase db reference not available on initApp. Listeners not set.");
+        // Handle case where backend didn't initialize - error shown earlier.
+        console.error("Database reference not available on initApp. Listeners not set.");
         // Display a persistent error message on the page
         try { // Use try-catch in case document isn't fully ready? Unlikely here.
-             if(!document.getElementById('firebase-error-message')) { // Prevent adding multiple error messages
+             if(!document.getElementById('database-error-message')) { // Prevent adding multiple error messages
                  const errorDiv = document.createElement('div');
-                 errorDiv.id = 'firebase-error-message';
+                 errorDiv.id = 'database-error-message';
                  errorDiv.style.color = 'red';
                  errorDiv.style.fontWeight = 'bold';
                  errorDiv.style.padding = '10px';
                  errorDiv.style.border = '1px solid red';
                  errorDiv.style.marginTop = '10px';
-                 errorDiv.textContent = 'FATAL ERROR: Could not connect to Firebase Database. Please check configuration in script.js and refresh.';
+                 errorDiv.textContent = 'FATAL ERROR: Could not connect to Database. Please check configuration in script.js and refresh.';
                  document.body.insertBefore(errorDiv, document.body.firstChild); // Add error message at the top
              }
-         } catch (e) { console.error("Could not display Firebase error on page", e); }
+         } catch (e) { console.error("Could not display database error on page", e); }
     }
 }
 
